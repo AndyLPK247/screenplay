@@ -1,5 +1,5 @@
-from screenplay import Actor
-import interactions
+from screenplay.actor import Actor
+import screenplay.interactions as interactions
 
 if __name__ == '__main__':
   actor = Actor()
