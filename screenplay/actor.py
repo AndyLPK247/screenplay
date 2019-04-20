@@ -3,7 +3,6 @@ import inspect
 
 
 class Actor:
-
   def __init__(self):
     self._abilities = dict()
     self._callables = dict()
@@ -48,7 +47,13 @@ class Actor:
 
   def __getattr__(self, attr):
     if attr not in self._callables:
-      raise KeyError(f'The actor does not know "{attr}"')
+      raise UnknownInteractionError(f'The actor does not know "{attr}"')
       
     known_func = self._callables[attr]
     return functools.partial(self.asks_for, known_func)
+
+
+class UnknownInteractionError(Exception):
+  def __init__(self, interaction_name):
+    super().__init__(f'The actor does not know "{interaction_name}"')
+    self.interaction_name = interaction_name

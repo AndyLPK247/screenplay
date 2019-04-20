@@ -1,7 +1,7 @@
 import pytest
 import screenplay.interactions as interactions
 
-from screenplay.actor import Actor
+from screenplay.actor import Actor, UnknownInteractionError
 
 
 def test_classic_actor_interactions():
@@ -23,6 +23,6 @@ def test_unknown_actor_interaction():
   actor = Actor()
   actor.can(webdriver='chrome')
   actor.knows(interactions)
-  with pytest.raises(KeyError):
+  with pytest.raises(UnknownInteractionError):
     actor.bark()
   

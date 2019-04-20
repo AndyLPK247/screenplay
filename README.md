@@ -13,3 +13,4 @@ A Pythonic Screenplay Pattern
 * Python packaging
 * Multiple packages?
 * Continuous integration?
+* Inherit from single module name?
