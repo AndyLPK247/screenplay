@@ -4,9 +4,9 @@ A Pythonic Screenplay Pattern
 ## TODO
 *Currently WIP*
 
-* Set up GitHub repo
-* Create package and folder structure
+* Better ability naming/definition/passing
 * Selenium WebDriver interactions
+* Timeouts
 * Docs
 * Unit tests
 * Examples
