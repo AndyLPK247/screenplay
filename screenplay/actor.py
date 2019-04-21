@@ -27,15 +27,18 @@ class Actor:
     return applicable_args
 
   def can(self, **kwargs):
+    # TODO: validation
     self._abilities.update(kwargs)
 
   def knows(self, *args):
+    # TODO: validation
     for module in args:
       members = inspect.getmembers(module)
       functions = {name: c for name, c in members if callable(c)}
       self._callables.update(functions)
 
   def call(self, interaction, **kwargs):
+    # TODO: validation
     applicable_args = self._get_applicable_args(interaction, **kwargs)
     return interaction(**applicable_args)
 
