@@ -20,22 +20,16 @@ def browser():
 @pytest.fixture
 def actor(browser):
   actor = Actor()
-  actor.can(browser=browser)
+  actor.knows(web)
+  actor.can(**web.browse_the_web(browser, 30))
   return actor
 
 
-def test_classic_actor_interactions(actor):
-  response = actor.asks_for(web.existence, locator=GOOGLE_SEARCH_BOX)
-  assert response
-
-
 def test_pythonic_actor_interactions(actor):
-  actor.knows(web)
   response = actor.existence(locator=GOOGLE_SEARCH_BOX)
   assert response
 
 
 def test_unknown_actor_interaction(actor):
-  actor.knows(web)
   with pytest.raises(UnknownInteractionError):
     actor.bark()

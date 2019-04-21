@@ -9,6 +9,10 @@ class Locator:
     return f'{self.name} ({self.by}: {self.query})'
 
 
+def browse_the_web(browser, timeout):
+  return {'browser': browser, 'timeout': timeout}
+
+
 def existence(locator, browser):
   elements = browser.find_elements(locator.by, locator.query)
   return len(elements) > 0
