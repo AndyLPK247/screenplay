@@ -1,12 +1,20 @@
 import functools
 import inspect
 
+from screenplay.decorators import is_ability, is_interaction
+
 
 class Actor:
   def __init__(self):
     self._abilities = dict()
-    self._callables = dict()
+    self._interactions = dict()
+    self._traits = dict()
   
+  def _can_do_ability(self, ability_name, *args, **kwargs):
+    ability = self._abilities[ability_name]
+    traits = ability(*args, **kwargs)
+    self.can(**traits)
+
   def _get_applicable_args(self, func, **kwargs):
     # Every parameter for the callable must have either:
     #  (a) an value passed in
@@ -19,8 +27,8 @@ class Actor:
     for name, param in params.items():
       if name in kwargs:
         applicable_args[name] = kwargs[name]
-      elif name in self._abilities:
-        applicable_args[name] = self._abilities[name]
+      elif name in self._traits:
+        applicable_args[name] = self._traits[name]
       elif param.default == inspect.Parameter.empty:
         raise Exception(f"Parameter '{name}' is missing for {func.__name__}")
     
@@ -28,14 +36,18 @@ class Actor:
 
   def can(self, **kwargs):
     # TODO: validation
-    self._abilities.update(kwargs)
+    self._traits.update(kwargs)
 
   def knows(self, *args):
     # TODO: validation
     for module in args:
       members = inspect.getmembers(module)
-      functions = {name: c for name, c in members if callable(c)}
-      self._callables.update(functions)
+
+      abilities = {name: f for name, f in members if is_ability(f)}
+      self._abilities.update(abilities)
+
+      interactions = {name: f for name, f in members if is_interaction(f)}
+      self._interactions.update(interactions)
 
   def call(self, interaction, **kwargs):
     # TODO: validation
@@ -49,11 +61,27 @@ class Actor:
     return self.call(question, **kwargs)
 
   def __getattr__(self, attr):
-    if attr not in self._callables:
-      raise UnknownInteractionError(f'The actor does not know "{attr}"')
-      
-    known_func = self._callables[attr]
-    return functools.partial(self.asks_for, known_func)
+    # Try to get it as an ability
+    if attr.startswith('can_'):
+      ability_name = attr[4:]
+      if ability_name not in self._abilities:
+        raise UnknownAbilityError(ability_name)
+      else:
+        return functools.partial(self._can_do_ability, ability_name)
+
+    # Fall back to get it as an interaction
+    else:
+      if attr not in self._interactions:
+        raise UnknownInteractionError(attr)
+      else:
+        interaction = self._interactions[attr]
+        return functools.partial(self.asks_for, interaction)
+
+
+class UnknownAbilityError(Exception):
+  def __init__(self, ability_name):
+    super().__init__(f'The actor does not know "{ability_name}"')
+    self.ability_name = ability_name
 
 
 class UnknownInteractionError(Exception):
