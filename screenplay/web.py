@@ -1,4 +1,4 @@
-from screenplay.decorators import ability, interaction
+from screenplay.decorators import ability, question
 
 
 class Locator:
@@ -16,7 +16,7 @@ def browse_the_web(browser, timeout):
   return {'browser': browser, 'timeout': timeout}
 
 
-@interaction
+@question
 def existence(locator, browser):
   elements = browser.find_elements(locator.by, locator.query)
   return len(elements) > 0
