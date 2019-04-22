@@ -10,11 +10,6 @@ class Actor:
     self._interactions = dict()
     self._traits = dict()
   
-  def _can_do_ability(self, ability_name, *args, **kwargs):
-    ability = self._abilities[ability_name]
-    traits = ability(*args, **kwargs)
-    self.can(**traits)
-
   def _get_applicable_args(self, func, **kwargs):
     # Every parameter for the callable must have either:
     #  (a) an value passed in
@@ -34,10 +29,6 @@ class Actor:
     
     return applicable_args
 
-  def can(self, **kwargs):
-    # TODO: validation
-    self._traits.update(kwargs)
-
   def knows(self, *args):
     # TODO: validation
     for module in args:
@@ -48,6 +39,14 @@ class Actor:
 
       interactions = {name: f for name, f in members if is_interaction(f)}
       self._interactions.update(interactions)
+
+  def give_traits(self, **kwargs):
+    # TODO: validation
+    self._traits.update(kwargs)
+
+  def can(self, ability, *args, **kwargs):
+    traits = ability(*args, **kwargs)
+    self.give_traits(**traits)
 
   def call(self, interaction, **kwargs):
     # TODO: validation
@@ -67,7 +66,8 @@ class Actor:
       if ability_name not in self._abilities:
         raise UnknownAbilityError(ability_name)
       else:
-        return functools.partial(self._can_do_ability, ability_name)
+        ability = self._abilities[ability_name]
+        return functools.partial(self.can, ability)
 
     # Fall back to get it as an interaction
     else:
