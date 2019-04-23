@@ -11,7 +11,7 @@ class Actor:
     self._traits = dict()
   
   def _get_applicable_args(self, interaction, **kwargs):
-    # Every parameter for the callable must have either:
+    # Every parameter for the interaction must have either:
     #  (a) an value passed in
     #  (b) an ability
     #  (b) a default value
@@ -30,15 +30,15 @@ class Actor:
     return applicable_args
 
   def knows(self, *args):
-    # TODO: validation
     for module in args:
-      members = inspect.getmembers(module)
-
-      abilities = {name: f for name, f in members if is_ability(f)}
-      self._abilities.update(abilities)
-
-      interactions = {name: f for name, f in members if is_interaction(f)}
-      self._interactions.update(interactions)
+      if not inspect.ismodule(module):
+        raise NotModuleError(module)
+      else:
+        members = inspect.getmembers(module)
+        abilities = {name: f for name, f in members if is_ability(f)}
+        self._abilities.update(abilities)
+        interactions = {name: f for name, f in members if is_interaction(f)}
+        self._interactions.update(interactions)
 
   @property
   def traits(self):
@@ -90,6 +90,12 @@ class MissingParameterError(Exception):
     super().__init__(f'Parameter "{parameter}" is missing for {interaction.__name__}')
     self.parameter = parameter
     self.interaction = interaction
+
+
+class NotModuleError(Exception):
+  def __init__(self, module):
+    super().__init__(f'"{module}" is not a module')
+    self.module = module
 
 
 class UnknownAbilityError(Exception):
