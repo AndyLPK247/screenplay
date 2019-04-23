@@ -40,6 +40,10 @@ class Actor:
       interactions = {name: f for name, f in members if is_interaction(f)}
       self._interactions.update(interactions)
 
+  @property
+  def traits(self):
+    return self._traits
+
   def give_traits(self, **kwargs):
     # TODO: validation
     self._traits.update(kwargs)
@@ -54,9 +58,11 @@ class Actor:
     return interaction(**applicable_args)
 
   def attempts_to(self, task, **kwargs):
+    # TODO: validation
     return self.call(task, **kwargs)
 
   def asks_for(self, question, **kwargs):
+    # TODO: validation
     return self.call(question, **kwargs)
 
   def __getattr__(self, attr):
