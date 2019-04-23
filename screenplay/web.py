@@ -1,4 +1,4 @@
-from screenplay.decorators import ability, question
+from screenplay.interactions import ability, question
 
 
 class Locator:
