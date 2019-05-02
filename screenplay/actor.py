@@ -1,30 +1,22 @@
 import functools
 import inspect
+import sys
 
-from screenplay.interactions import *
-
-
-# TODO: errors for invalid args?
-# TODO: add *args for actor interaction calls?
-# TODO: add **kwargs for actor interaction calls?
-
-# def interaction(a=1, b=2)
-# def interaction(**kwargs)
-# def interaction(a=1, b=2, **kwargs)
+from collections import OrderedDict
+from screenplay.pattern import *
 
 
-class Actor:
+# TODO: 'knows' should take screenplay functions
+
+
+class BaseActor:
   def __init__(self):
-    self._abilities = dict()
-    self._interactions = dict()
-    self._traits = dict()
-  
-  def _get_applicable_args(self, interaction, arg_dict):
-    # Every parameter for the interaction must have either:
-    #  (a) an value passed in
-    #  (b) an ability
-    #  (b) a default value
+    self._abilities = OrderedDict()
+    self._interactions = OrderedDict()
+    self._sayings = OrderedDict()
+    self._traits = OrderedDict()
 
+  def _get_args(self, interaction, arg_dict):
     applicable_args = dict()
     params = inspect.signature(interaction).parameters
 
@@ -33,65 +25,103 @@ class Actor:
         applicable_args[name] = arg_dict[name]
       elif name in self._traits:
         applicable_args[name] = self._traits[name]
+      elif name == 'actor':
+        applicable_args['actor'] = self
       elif param.default == inspect.Parameter.empty:
         raise MissingParameterError(name, interaction)
     
     return applicable_args
+
+  def _get_members(self, members, predicate, target):
+    for name, f in members:
+      if predicate(f):
+        target[name] = f
+
+  @property
+  def abilities(self):
+    return self._abilities
+
+  @property
+  def interactions(self):
+    return self._interactions
+
+  @property
+  def sayings(self):
+    return self._sayings
+
+  @property
+  def traits(self):
+    return self._traits
+
+  def add_traits(self, **kwargs):
+    # TODO: validation for duplicates
+    self._traits.update(kwargs)
+
+  def call(self, interaction, **kwargs):
+    validate_interaction(interaction)
+    applicable_args = self._get_args(interaction, kwargs)
+    return interaction(**applicable_args)
+
+  def can(self, ability, **kwargs):
+    validate_ability(ability)
+    traits = ability(**kwargs)
+    self.add_traits(**traits)
 
   def knows(self, *args):
     for module in args:
       if not inspect.ismodule(module):
         raise NotModuleError(module)
       else:
+        # TODO: validation for duplicates
         members = inspect.getmembers(module)
-        abilities = {name: f for name, f in members if is_ability(f)}
-        self._abilities.update(abilities)
-        interactions = {name: f for name, f in members if is_interaction(f)}
-        self._interactions.update(interactions)
-
-  @property
-  def traits(self):
-    return self._traits
-
-  def give_traits(self, **kwargs):
-    # TODO: validation for duplicates
-    self._traits.update(kwargs)
-
-  def can(self, ability, *args, **kwargs):
-    validate_ability(ability)
-    traits = ability(*args, **kwargs)
-    self.give_traits(**traits)
-
-  def call(self, interaction, **kwargs):
-    validate_interaction(interaction)
-    applicable_args = self._get_applicable_args(interaction, kwargs)
-    return interaction(**applicable_args)
-
-  def attempts_to(self, task, **kwargs):
-    validate_task(task)
-    return self.call(task, **kwargs)
-
-  def asks_for(self, question, **kwargs):
-    validate_question(question)
-    return self.call(question, **kwargs)
+        self._get_members(members, is_ability, self._abilities)
+        self._get_members(members, is_interaction, self._interactions)
+        self._get_members(members, is_saying, self._sayings)
 
   def __getattr__(self, attr):
-    # Try to get it as an ability
-    if attr.startswith('can_'):
-      ability_name = attr[4:]
-      if ability_name not in self._abilities:
-        raise UnknownAbilityError(ability_name)
-      else:
-        ability = self._abilities[ability_name]
-        return functools.partial(self.can, ability)
+    for name, saying in self._sayings.items():
+      call = saying(self, attr)
+      if call is not None:
+        return call
+    raise UnknownSayingError(attr)
 
-    # Fall back to get it as an interaction
+
+@saying
+def call_ability(actor, name):
+  if name.startswith('can_'):
+    ability_name = name[4:]
+    if ability_name not in actor.abilities:
+      raise UnknownAbilityError(ability_name)
     else:
-      if attr not in self._interactions:
-        raise UnknownInteractionError(attr)
-      else:
-        interaction = self._interactions[attr]
-        return functools.partial(self.call, interaction)
+      ability = actor.abilities[ability_name]
+      return functools.partial(actor.can, ability)
+
+
+@saying
+def call_interaction(actor, name):
+  if name in actor.interactions:
+    interaction = actor.interactions[name]
+    return functools.partial(actor.call, interaction)
+
+
+@saying
+def traditional_screenplay(actor, name):
+  if name == 'attempts_to':
+    def attempts_to(task, **kwargs):
+      validate_task(task)
+      return actor.call(task, **kwargs)
+    return attempts_to
+  elif name == 'asks_for':
+    def asks_for(question, **kwargs):
+      validate_question(question)
+      return actor.call(question, **kwargs)
+    return asks_for
+
+
+class Actor(BaseActor):
+  def __init__(self):
+    super().__init__()
+    self.knows(sys.modules[__name__])
 
 
 class MissingParameterError(Exception):
@@ -113,7 +143,7 @@ class UnknownAbilityError(Exception):
     self.ability_name = ability_name
 
 
-class UnknownInteractionError(Exception):
-  def __init__(self, interaction_name):
-    super().__init__(f'The actor does not know "{interaction_name}"')
-    self.interaction_name = interaction_name
+class UnknownSayingError(Exception):
+  def __init__(self, saying_name):
+    super().__init__(f'The actor does not know "{saying_name}"')
+    self.saying_name = saying_name

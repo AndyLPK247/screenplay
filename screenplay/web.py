@@ -1,4 +1,4 @@
-from screenplay.interactions import ability, question
+from screenplay.pattern import ability, question
 
 
 # Locator

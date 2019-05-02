@@ -1,5 +1,5 @@
 import time
-from screenplay.interactions import *
+from screenplay.pattern import *
 
 
 # TODO: default timeout?

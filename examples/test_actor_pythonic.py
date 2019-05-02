@@ -1,7 +1,7 @@
 import pytest
 
 from screenplay import web
-from screenplay.actor import Actor, NotModuleError, UnknownAbilityError, UnknownInteractionError
+from screenplay.actor import Actor, NotModuleError, UnknownAbilityError, UnknownSayingError
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -21,7 +21,7 @@ def browser():
 def actor(browser):
   actor = Actor()
   actor.knows(web)
-  actor.can_browse_the_web(browser, 30)
+  actor.can_browse_the_web(browser=browser, timeout=30)
   return actor
 
 
@@ -36,12 +36,12 @@ def test_pythonic_actor_nonexistent_ability(actor):
 
 
 def test_pythonic_actor_nonexistent_interaction(actor):
-  with pytest.raises(UnknownInteractionError):
+  with pytest.raises(UnknownSayingError):
     actor.bark()
 
 
 def test_pythonic_actor_noninteraction(actor):
-  with pytest.raises(UnknownInteractionError):
+  with pytest.raises(UnknownSayingError):
     actor.noninteraction()
 
 
