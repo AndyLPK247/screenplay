@@ -6,9 +6,6 @@ from collections import OrderedDict
 from screenplay.pattern import *
 
 
-# TODO: add traits via 'knows'
-
-
 class BaseActor:
   def __init__(self):
     self._abilities = OrderedDict()
@@ -53,10 +50,6 @@ class BaseActor:
   def traits(self):
     return self._traits
 
-  def add_traits(self, **kwargs):
-    # TODO: validation for duplicates
-    self._traits.update(kwargs)
-
   def call(self, interaction, **kwargs):
     validate_interaction(interaction)
     applicable_args = self._get_args(interaction, kwargs)
@@ -65,10 +58,12 @@ class BaseActor:
   def can(self, ability, **kwargs):
     validate_ability(ability)
     traits = ability(**kwargs)
-    self.add_traits(**traits)
+    self._traits.update(traits)
 
-  def knows(self, *args):
+  def knows(self, *args, **kwargs):
     # TODO: validation for duplicates
+    self._traits.update(kwargs)
+
     for arg in args:
       if inspect.ismodule(arg):
         members = inspect.getmembers(arg)
@@ -96,9 +91,7 @@ class BaseActor:
 def call_ability(actor, name):
   if name.startswith('can_'):
     ability_name = name[4:]
-    if ability_name not in actor.abilities:
-      raise UnknownAbilityError(ability_name)
-    else:
+    if ability_name in actor.abilities:
       ability = actor.abilities[ability_name]
       return functools.partial(actor.can, ability)
 
@@ -141,12 +134,6 @@ class UnknowableArgumentError(Exception):
   def __init__(self, argument):
     super().__init__(f'"{argument}" is not a module or screenplay function')
     self.argument = argument
-
-
-class UnknownAbilityError(Exception):
-  def __init__(self, ability_name):
-    super().__init__(f'The actor does not know "{ability_name}"')
-    self.ability_name = ability_name
 
 
 class UnknownSayingError(Exception):

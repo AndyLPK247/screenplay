@@ -1,7 +1,7 @@
 import pytest
 
 from screenplay import web
-from screenplay.actor import Actor, UnknowableArgumentError, UnknownAbilityError, UnknownSayingError
+from screenplay.actor import Actor, UnknowableArgumentError, UnknownSayingError
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -30,24 +30,14 @@ def test_pythonic_actor_interactions(actor):
   assert response
 
 
-def test_pythonic_actor_nonexistent_ability(actor):
-  with pytest.raises(UnknownAbilityError):
-    actor.can_bark()
-
-
-def test_pythonic_actor_nonexistent_interaction(actor):
+def test_pythonic_actor_nonexistent_saying(actor):
   with pytest.raises(UnknownSayingError):
     actor.bark()
 
 
-def test_pythonic_actor_noninteraction(actor):
-  with pytest.raises(UnknownSayingError):
-    actor.noninteraction()
-
-
-def test_pythonic_actor_know_unknowable_arg(actor):
+def test_pythonic_actor_know_invalid_arg(actor):
   with pytest.raises(UnknowableArgumentError):
     actor.knows(object())
 
 
-# TODO: 'knows' tests for each screenplay function
+# TODO: 'knows' tests for each screenplay function and traits
