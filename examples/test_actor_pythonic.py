@@ -1,7 +1,7 @@
 import pytest
 
 from screenplay import web
-from screenplay.actor import Actor, NotModuleError, UnknownAbilityError, UnknownSayingError
+from screenplay.actor import Actor, UnknowableArgumentError, UnknownAbilityError, UnknownSayingError
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -45,6 +45,9 @@ def test_pythonic_actor_noninteraction(actor):
     actor.noninteraction()
 
 
-def test_pythonic_actor_know_nonexistent_module(actor):
-  with pytest.raises(NotModuleError):
+def test_pythonic_actor_know_unknowable_arg(actor):
+  with pytest.raises(UnknowableArgumentError):
     actor.knows(object())
+
+
+# TODO: 'knows' tests for each screenplay function

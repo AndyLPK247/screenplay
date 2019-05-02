@@ -6,7 +6,7 @@ from collections import OrderedDict
 from screenplay.pattern import *
 
 
-# TODO: 'knows' should take screenplay functions
+# TODO: add traits via 'knows'
 
 
 class BaseActor:
@@ -68,15 +68,21 @@ class BaseActor:
     self.add_traits(**traits)
 
   def knows(self, *args):
-    for module in args:
-      if not inspect.ismodule(module):
-        raise NotModuleError(module)
-      else:
-        # TODO: validation for duplicates
-        members = inspect.getmembers(module)
+    # TODO: validation for duplicates
+    for arg in args:
+      if inspect.ismodule(arg):
+        members = inspect.getmembers(arg)
         self._get_members(members, is_ability, self._abilities)
         self._get_members(members, is_interaction, self._interactions)
         self._get_members(members, is_saying, self._sayings)
+      elif is_ability(arg):
+        self._abilities[arg.__name__] = arg
+      elif is_interaction(arg):
+        self._interactions[arg.__name__] = arg
+      elif is_saying(arg):
+        self._sayings[arg.__name__] = arg
+      else:
+        raise UnknowableArgumentError(arg)
 
   def __getattr__(self, attr):
     for name, saying in self._sayings.items():
@@ -121,7 +127,7 @@ def traditional_screenplay(actor, name):
 class Actor(BaseActor):
   def __init__(self):
     super().__init__()
-    self.knows(sys.modules[__name__])
+    self.knows(call_ability, call_interaction, traditional_screenplay)
 
 
 class MissingParameterError(Exception):
@@ -131,10 +137,10 @@ class MissingParameterError(Exception):
     self.interaction = interaction
 
 
-class NotModuleError(Exception):
-  def __init__(self, module):
-    super().__init__(f'"{module}" is not a module')
-    self.module = module
+class UnknowableArgumentError(Exception):
+  def __init__(self, argument):
+    super().__init__(f'"{argument}" is not a module or screenplay function')
+    self.argument = argument
 
 
 class UnknownAbilityError(Exception):
