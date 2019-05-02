@@ -1,6 +1,8 @@
 from screenplay.interactions import ability, question
 
 
+# Locator
+
 class Locator:
   def __init__(self, name, by, query):
     self.name = name
@@ -11,9 +13,22 @@ class Locator:
     return f'{self.name} ({self.by}: {self.query})'
 
 
+# Abilities
+
 @ability
 def browse_the_web(browser, timeout):
   return {'browser': browser, 'timeout': timeout}
+
+
+# Tasks
+
+
+# Questions
+
+@question
+def appearance(locator, browser):
+  return existence(locator, browser) and \
+    browser.find_element(locator.by).is_displayed()
 
 
 @question

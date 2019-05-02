@@ -4,13 +4,22 @@ import inspect
 from screenplay.interactions import *
 
 
+# TODO: errors for invalid args?
+# TODO: add *args for actor interaction calls?
+# TODO: add **kwargs for actor interaction calls?
+
+# def interaction(a=1, b=2)
+# def interaction(**kwargs)
+# def interaction(a=1, b=2, **kwargs)
+
+
 class Actor:
   def __init__(self):
     self._abilities = dict()
     self._interactions = dict()
     self._traits = dict()
   
-  def _get_applicable_args(self, interaction, **kwargs):
+  def _get_applicable_args(self, interaction, arg_dict):
     # Every parameter for the interaction must have either:
     #  (a) an value passed in
     #  (b) an ability
@@ -20,8 +29,8 @@ class Actor:
     params = inspect.signature(interaction).parameters
 
     for name, param in params.items():
-      if name in kwargs:
-        applicable_args[name] = kwargs[name]
+      if name in arg_dict:
+        applicable_args[name] = arg_dict[name]
       elif name in self._traits:
         applicable_args[name] = self._traits[name]
       elif param.default == inspect.Parameter.empty:
@@ -55,7 +64,7 @@ class Actor:
 
   def call(self, interaction, **kwargs):
     validate_interaction(interaction)
-    applicable_args = self._get_applicable_args(interaction, **kwargs)
+    applicable_args = self._get_applicable_args(interaction, kwargs)
     return interaction(**applicable_args)
 
   def attempts_to(self, task, **kwargs):
@@ -82,7 +91,7 @@ class Actor:
         raise UnknownInteractionError(attr)
       else:
         interaction = self._interactions[attr]
-        return functools.partial(self.asks_for, interaction)
+        return functools.partial(self.call, interaction)
 
 
 class MissingParameterError(Exception):
