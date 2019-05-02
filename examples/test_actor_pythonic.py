@@ -11,7 +11,7 @@ GOOGLE_SEARCH_BOX = web.Locator('Google Search Box', By.NAME, 'q')
 
 @pytest.fixture
 def browser():
-  driver  = webdriver.Firefox()
+  driver = webdriver.Firefox()
   driver.get("http://www.google.com")
   yield driver
   driver.quit()
