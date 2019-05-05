@@ -15,6 +15,18 @@ class BaseActor:
     self._sayings = OrderedDict()
     self._traits = OrderedDict()
 
+  def _add_actor_context(self, actor):
+    self._abilities.update(actor.abilities)
+    self._interactions.update(actor.interactions)
+    self._sayings.update(actor.sayings)
+    self._traits.update(actor.traits)
+  
+  def _add_module_members(self, module):
+    members = inspect.getmembers(module)
+    self._get_members(members, is_ability, self._abilities)
+    self._get_members(members, is_interaction, self._interactions)
+    self._get_members(members, is_saying, self._sayings)
+
   def _get_args(self, interaction, arg_dict):
     applicable_args = dict()
     params = inspect.signature(interaction).parameters
@@ -68,10 +80,9 @@ class BaseActor:
 
     for arg in args:
       if inspect.ismodule(arg):
-        members = inspect.getmembers(arg)
-        self._get_members(members, is_ability, self._abilities)
-        self._get_members(members, is_interaction, self._interactions)
-        self._get_members(members, is_saying, self._sayings)
+        self._add_module_members(arg)
+      elif isinstance(arg, Actor):
+        self._add_actor_context(arg)
       elif is_ability(arg):
         self._abilities[arg.__name__] = arg
       elif is_interaction(arg):
