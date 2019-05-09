@@ -1,8 +1,17 @@
 
 # Decorators
 
-def _screenplay_decorator(func, ability=False, interaction=False, task=False, question=False, saying=False):
+def _screenplay_decorator(
+  func,
+  ability=False,
+  condition=False,
+  interaction=False,
+  task=False,
+  question=False,
+  saying=False):
+
   func.is_ability = ability
+  func.is_condition = condition
   func.is_interaction = interaction
   func.is_task = task
   func.is_question = question
@@ -12,6 +21,10 @@ def _screenplay_decorator(func, ability=False, interaction=False, task=False, qu
 
 def ability(func):
   return _screenplay_decorator(func, ability=True)
+
+
+def condition(func):
+  return _screenplay_decorator(func, condition=True)
 
 
 def interaction(func):
@@ -40,6 +53,10 @@ def is_ability(func):
   return _is_screenplay_func(func, 'is_ability')
 
 
+def is_condition(func):
+  return _is_screenplay_func(func, 'is_condition')
+
+
 def is_interaction(func):
   return _is_screenplay_func(func, 'is_interaction')
 
@@ -64,27 +81,32 @@ class NotScreenplayFunctionError(Exception):
     self.func = func
 
 
-class NotAbilityError(Exception):
+class NotAbilityError(NotScreenplayFunctionError):
   def __init__(self, func):
     super().__init__(func, 'an ability')
 
 
-class NotInteractionError(Exception):
+class NotConditionError(NotScreenplayFunctionError):
+  def __init__(self, func):
+    super().__init__(func, 'a condition')
+
+
+class NotInteractionError(NotScreenplayFunctionError):
   def __init__(self, func):
     super().__init__(func, 'an interaction')
 
 
-class NotTaskError(Exception):
+class NotTaskError(NotScreenplayFunctionError):
   def __init__(self, func):
     super().__init__(func, 'a task')
 
 
-class NotQuestionError(Exception):
+class NotQuestionError(NotScreenplayFunctionError):
   def __init__(self, func):
     super().__init__(func, 'a question')
 
 
-class NotSayingError(Exception):
+class NotSayingError(NotScreenplayFunctionError):
   def __init__(self, func):
     super().__init__(func, 'a saying')
 
@@ -98,6 +120,10 @@ def _validate_screenplay_func(func, predicate, exception):
 
 def validate_ability(ability):
   _validate_screenplay_func(ability, is_ability, NotAbilityError)
+
+
+def validate_condition(condition):
+  _validate_screenplay_func(condition, is_condition, NotConditionError)
 
 
 def validate_interaction(interaction):
