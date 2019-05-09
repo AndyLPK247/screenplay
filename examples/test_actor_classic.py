@@ -1,6 +1,6 @@
 import pytest
 
-from screenplay.actor import Actor
+from screenplay.actor import screenplay_actor
 from screenplay.web import Locator, browse_the_web, existence
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -19,7 +19,7 @@ def browser():
 
 @pytest.fixture
 def actor(browser):
-  actor = Actor()
+  actor = screenplay_actor()
   actor.can(browse_the_web, browser=browser, timeout=30)
   return actor
 

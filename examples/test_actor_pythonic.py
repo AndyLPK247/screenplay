@@ -1,7 +1,7 @@
 import pytest
 
 from screenplay import web
-from screenplay.actor import Actor, UnknowableArgumentError, UnknownSayingError
+from screenplay.actor import screenplay_actor, UnknowableArgumentError, UnknownSayingError
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -19,7 +19,7 @@ def browser():
 
 @pytest.fixture
 def actor(browser):
-  actor = Actor()
+  actor = screenplay_actor()
   actor.knows(web)
   actor.can_browse_the_web(browser=browser, timeout=30)
   return actor
