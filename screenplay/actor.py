@@ -157,10 +157,10 @@ def traditional_screenplay(actor, name):
     return asks_for
 
 
-# Wait interactions
+# Wait Interactions
 
 @interaction
-def wait(actor, timeout, interval=1):
+def wait(actor, timeout=30, interval=1):
   wait_actor = Actor()
   wait_actor.knows(actor, call_interaction, on)
   wait_actor.knows(timeout=timeout, interval=interval)
