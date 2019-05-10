@@ -218,20 +218,6 @@ class WaitTimeoutError(Exception):
     self.c_args = c_args
 
 
-# wait(timeout=30, interval=1).on(existence, locator=SOME_ELEMENT).to(be, value=True)
-
-# actor.attempts_to(wait, timeout=30, interval=1).on(existence, locator=SOME_ELEMENT).to(be, value=True)
-
-# actor.wait(timeout=30, interval=1).on(something, locator=SOME_ELEMENT).to(be, value=789)
-# actor.wait().on_something(locator=SOME_ELEMENT).to_be(value=789)
-# actor.wait_on_something(locator=SOME_ELEMENT).to_be(value=789)
-
-# actor.wait_on_something(locator=SOME_ELEMENT).to_be(789)
-# actor.wait_on_something(locator=SOME_ELEMENT).to_match("regex")
-# actor.wait_on_something(locator=SOME_ELEMENT).to_contain_substring("substring")
-# actor.wait_on_something(locator=SOME_ELEMENT).to_contain("a", "b", "c")
-
-
 # Pythonic Screenplay Actor
 
 def screenplay_actor():
