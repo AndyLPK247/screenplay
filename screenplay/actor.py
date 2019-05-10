@@ -15,12 +15,14 @@ from screenplay.pattern import *
 class Actor:
   def __init__(self):
     self._abilities = OrderedDict()
+    self._conditions = OrderedDict()
     self._interactions = OrderedDict()
     self._sayings = OrderedDict()
     self._traits = OrderedDict()
 
   def _add_actor_context(self, actor):
     self._abilities.update(actor.abilities)
+    self._conditions.update(actor.conditions)
     self._interactions.update(actor.interactions)
     self._sayings.update(actor.sayings)
     self._traits.update(actor.traits)
@@ -28,6 +30,7 @@ class Actor:
   def _add_module_members(self, module):
     members = inspect.getmembers(module)
     self._get_members(members, is_ability, self._abilities)
+    self._get_members(members, is_condition, self._conditions)
     self._get_members(members, is_interaction, self._interactions)
     self._get_members(members, is_saying, self._sayings)
 
@@ -55,6 +58,10 @@ class Actor:
   @property
   def abilities(self):
     return self._abilities
+
+  @property
+  def conditions(self):
+    return self._conditions
 
   @property
   def interactions(self):
@@ -89,6 +96,8 @@ class Actor:
         self._add_actor_context(arg)
       elif is_ability(arg):
         self._abilities[arg.__name__] = arg
+      elif is_condition(arg):
+        self._conditions[arg.__name__] = arg
       elif is_interaction(arg):
         self._interactions[arg.__name__] = arg
       elif is_saying(arg):
@@ -162,7 +171,7 @@ def traditional_screenplay(actor, name):
 @interaction
 def wait(actor, timeout=30, interval=1):
   wait_actor = Actor()
-  wait_actor.knows(actor, call_interaction, on)
+  wait_actor.knows(actor, call_interaction, on, on_question)
   wait_actor.knows(timeout=timeout, interval=interval)
   return wait_actor
 
@@ -171,7 +180,7 @@ def wait(actor, timeout=30, interval=1):
 def on(actor, question, **q_args):
   validate_question(question)
   on_actor = Actor()
-  on_actor.knows(actor, call_interaction, to)
+  on_actor.knows(actor, call_interaction, to, to_condition)
   on_actor.knows(on_question=question, on_question_args=q_args)
   return on_actor
 
@@ -198,6 +207,36 @@ def to(actor, condition, **c_args):
     raise WaitTimeoutError(timeout, question, q_args, condition, c_args)
 
 
+# Wait Sayings
+
+@saying
+def on_question(actor, name):
+  if name.startswith('on_'):
+    question_name = name[3:]
+    if question_name in actor.interactions:
+      question = actor.interactions[question_name]
+      return functools.partial(actor.call, on, actor=actor, question=question)
+
+
+@saying
+def wait_on_question(actor, name):
+  if name.startswith('wait_on_'):
+    wait_actor = wait(actor)
+    on_name = name[5:]
+    return on_question(wait_actor, on_name)
+
+
+@saying
+def to_condition(actor, name):
+  if name.startswith('to_'):
+    condition_name = name[3:]
+    if condition_name in actor.conditions:
+      condition = actor.conditions[condition_name]
+      return functools.partial(actor.call, to, actor=actor, condition=condition)
+
+
+# Wait Exceptions
+
 def _format_call(func, kwargs):
   name = func.__name__
   args = ", ".join([f"{k}={v}" for (k, v) in kwargs.items()])
@@ -222,5 +261,5 @@ class WaitTimeoutError(Exception):
 
 def screenplay_actor():
   actor = Actor()
-  actor.knows(call_ability, call_interaction, traditional_screenplay, wait)
+  actor.knows(call_ability, call_interaction, traditional_screenplay, wait, wait_on_question)
   return actor

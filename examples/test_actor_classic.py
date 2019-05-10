@@ -34,6 +34,7 @@ def test_classic_actor_interactions(actor):
 # initial actor is empty
 # know traits
 # know abilities
+# know conditions
 # know interactions
 # know sayings
 # know actor
@@ -99,10 +100,28 @@ def test_classic_actor_interactions(actor):
 # chain: actor.wait().on(question).to(question)
 
 
-# Future Tests
+# Test Pythonic Wait Interactions
 
-# actor.wait().on_something(locator=SOME_ELEMENT).to_be(value=789)
+# on_question: success without parameters
+# on_question: success with args only
+# on_question: success with args and traits
+# on_question: success with extra args
+# on_question: DNE
+# wait_on_question: success
+# wait_on_question: DNE
+# to_condition: success without parameters
+# to_condition: success with args only
+# to_condition: success with args and traits
+# to_condition: success with extra args
+# to_condition: DNE
+
+# actor.wait().on_question().to_condition()
+# actor.wait_on_question().to_condition()
 # actor.wait_on_something(locator=SOME_ELEMENT).to_be(value=789)
+
+
+# Future Tests?
+
 # actor.wait_on_something(locator=SOME_ELEMENT).to_be(789)
 # actor.wait_on_something(locator=SOME_ELEMENT).to_match("regex")
 # actor.wait_on_something(locator=SOME_ELEMENT).to_contain_substring("substring")
