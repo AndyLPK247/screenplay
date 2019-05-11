@@ -37,6 +37,16 @@ def go_super_saiyan():
   return {'hair': 'blonde', 'power': 9001}
 
 
+@condition
+def be(actual, value):
+  return actual == value
+
+
+@condition
+def contain(actual, value):
+  return value in actual
+
+
 # ------------------------------------------------------------------------------
 # Tests for Knowing Traits
 # ------------------------------------------------------------------------------
@@ -128,9 +138,38 @@ def test_actor_knows_abilities_in_order(actor):
   assert list(actor.abilities.keys()) == ['go_super_saiyan', 'be_cool']
 
 
+# ------------------------------------------------------------------------------
+# Tests for Knowing Conditions
+# ------------------------------------------------------------------------------
+
+def test_actor_knows_a_condition(actor):
+  actor.knows(be)
+  assert len(actor.conditions) == 1
+  assert actor.conditions['be'] == be
+
+
+def test_actor_knows_multiple_conditions_with_one_call_each(actor):
+  actor.knows(be)
+  actor.knows(contain)
+  assert len(actor.conditions) == 2
+  assert actor.conditions['be'] == be
+  assert actor.conditions['contain'] == contain
+
+
+def test_actor_knows_multiple_conditions_with_one_call_for_all(actor):
+  actor.knows(be, contain)
+  assert len(actor.conditions) == 2
+  assert actor.conditions['be'] == be
+  assert actor.conditions['contain'] == contain
+
+
+def test_actor_knows_conditions_in_order(actor):
+  actor.knows(contain, be)
+  assert list(actor.conditions.keys()) == ['contain', 'be']
+
+
 # Test Actor
 
-# know conditions
 # know interactions
 # know sayings
 # know actor
