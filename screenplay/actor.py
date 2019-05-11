@@ -7,6 +7,8 @@ from collections import OrderedDict
 from screenplay.pattern import *
 
 
+# TODO: 'check' condition?
+# TODO: condition with *args?
 # TODO: Reconsider interaction *args?
 
 
