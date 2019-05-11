@@ -10,6 +10,7 @@ import pytest
 
 from collections import OrderedDict
 from screenplay.actor import Actor
+from screenplay.pattern import *
 
 
 # ------------------------------------------------------------------------------
@@ -20,6 +21,20 @@ from screenplay.actor import Actor
 def actor():
   """Creates an Actor instance with an empty context."""
   return Actor()
+
+
+# ------------------------------------------------------------------------------
+# Pattern Functions
+# ------------------------------------------------------------------------------
+
+@ability
+def be_cool():
+  return {'cool': True}
+
+
+@ability
+def go_super_saiyan():
+  return {'hair': 'blonde', 'power': 9001}
 
 
 # ------------------------------------------------------------------------------
@@ -83,9 +98,38 @@ def test_actor_knows_traits_being_overridden(actor):
   assert actor.traits['b'] == 99
 
 
+# ------------------------------------------------------------------------------
+# Tests for Knowing Abilities
+# ------------------------------------------------------------------------------
+
+def test_actor_knows_an_ability(actor):
+  actor.knows(be_cool)
+  assert len(actor.abilities) == 1
+  assert actor.abilities['be_cool'] == be_cool
+
+
+def test_actor_knows_multiple_abilities_with_one_call_each(actor):
+  actor.knows(be_cool)
+  actor.knows(go_super_saiyan)
+  assert len(actor.abilities) == 2
+  assert actor.abilities['be_cool'] == be_cool
+  assert actor.abilities['go_super_saiyan'] == go_super_saiyan
+
+
+def test_actor_knows_multiple_abilities_with_one_call_for_all(actor):
+  actor.knows(be_cool, go_super_saiyan)
+  assert len(actor.abilities) == 2
+  assert actor.abilities['be_cool'] == be_cool
+  assert actor.abilities['go_super_saiyan'] == go_super_saiyan
+
+
+def test_actor_knows_abilities_in_order(actor):
+  actor.knows(go_super_saiyan, be_cool)
+  assert list(actor.abilities.keys()) == ['go_super_saiyan', 'be_cool']
+
+
 # Test Actor
 
-# know abilities
 # know conditions
 # know interactions
 # know sayings
