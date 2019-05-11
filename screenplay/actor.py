@@ -88,7 +88,6 @@ class Actor:
     self._traits.update(traits)
 
   def knows(self, *args, **kwargs):
-    # TODO: validation for duplicates
     self._traits.update(kwargs)
 
     for arg in args:
@@ -189,6 +188,8 @@ def on(actor, question, **q_args):
 
 @interaction
 def to(actor, condition, **c_args):
+  # TODO: filter args for condition call
+
   validate_condition(condition)
 
   timeout = actor.traits.timeout

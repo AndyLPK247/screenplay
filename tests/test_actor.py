@@ -1,17 +1,90 @@
+"""
+This module contains unit tests for the Actor class.
+"""
+
+# ------------------------------------------------------------------------------
+# Imports
+# ------------------------------------------------------------------------------
+
 import pytest
 
+from collections import OrderedDict
 from screenplay.actor import Actor
 
 
+# ------------------------------------------------------------------------------
+# Fixtures
+# ------------------------------------------------------------------------------
+
 @pytest.fixture
 def actor():
+  """Creates an Actor instance with an empty context."""
   return Actor()
+
+
+# ------------------------------------------------------------------------------
+# Tests for Knowing Traits
+# ------------------------------------------------------------------------------
+
+@pytest.mark.parametrize(
+  "attr",
+  ['abilities', 'conditions', 'interactions', 'sayings', 'traits'])
+def test_initial_actor_is_empty(actor, attr):
+  attr_dict = getattr(actor, attr)
+  assert isinstance(attr_dict, OrderedDict)
+  assert len(attr_dict) == 0
+
+
+@pytest.mark.parametrize(
+  "key,value",
+  [
+    ("number", 3.14),
+    ("string", "Hello, World!"),
+    ("boolean", False),
+    ("list", [1, 2, 3]),
+    ("set", {1, 2, 3}),
+    ("dict", {'a': 1, 'b': 2}),
+    ("object", object())
+  ]
+)
+def test_actor_knows_a_trait(actor, key, value):
+  traits = {key: value}
+  actor.knows(**traits)
+  assert len(actor.traits) == 1
+  assert actor.traits[key] == value
+
+
+def test_actor_knows_multiple_traits_with_one_call_each(actor):
+  actor.knows(a=1)
+  actor.knows(b=2)
+  actor.knows(c=3)
+  assert len(actor.traits) == 3
+  assert actor.traits['a'] == 1
+  assert actor.traits['b'] == 2
+  assert actor.traits['c'] == 3
+
+
+def test_actor_knows_multiple_traits_with_one_call_for_all(actor):
+  actor.knows(a=1, b=2, c=3)
+  assert len(actor.traits) == 3
+  assert actor.traits['a'] == 1
+  assert actor.traits['b'] == 2
+  assert actor.traits['c'] == 3
+
+
+def test_actor_knows_traits_in_order(actor):
+  actor.knows(e=5, d=4, c=3, b=2, a=1)
+  assert list(actor.traits.keys()) == ['e', 'd', 'c', 'b', 'a']
+
+
+def test_actor_knows_traits_being_overridden(actor):
+  actor.knows(a=1, b=2, c=3)
+  actor.knows(b=99)
+  assert actor.traits['b'] == 99
 
 
 # Test Actor
 
-# initial actor is empty
-# know traits
 # know abilities
 # know conditions
 # know interactions
