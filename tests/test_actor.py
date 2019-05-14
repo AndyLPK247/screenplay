@@ -34,8 +34,8 @@ def be_cool():
 
 
 @ability
-def go_super_saiyan():
-  return {'hair': 'blonde', 'power': 9001}
+def go_super_saiyan(extra):
+  return {'hair': 'blonde', 'power': 9001, 'extra': extra}
 
 
 @condition
@@ -354,7 +354,7 @@ def test_actor_knows_another_actor(actor):
 
 
 # ------------------------------------------------------------------------------
-# Tests for Knowing Non-Screenplay Items
+# Tests for Attempting to Know Non-Screenplay Items
 # ------------------------------------------------------------------------------
 
 def test_actor_cannot_know_an_arbitrary_function(actor):
@@ -389,13 +389,34 @@ def test_actor_cannot_know_an_arbitrary_dict(actor):
     actor.knows(stuff)
 
 
+# ------------------------------------------------------------------------------
+# Tests for Having Abilities
+# ------------------------------------------------------------------------------
+
+def test_actor_can_do_ability_without_args(actor):
+  actor.can(be_cool)
+  assert len(actor.traits) == 1
+  assert actor.traits['cool'] == True
+
+
+def test_actor_can_do_ability_with_args(actor):
+  actor.can(go_super_saiyan, extra='yes')
+  assert len(actor.traits) == 3
+  assert actor.traits['hair'] == 'blonde'
+  assert actor.traits['power'] == 9001
+  assert actor.traits['extra'] == 'yes'
+
+
+def test_actor_cannot_do_non_ability(actor):
+  def noop():
+    pass
+  
+  with pytest.raises(NotAbilityError):
+    actor.can(noop)
+
+
 # Test Actor
 
-# can ability without args
-# can ability with args
-# can unknown ability
-# can non-ability
-# can duplicate traits
 # call interaction without parameters
 # call interaction without args and no traits
 # call interaction with args and no traits
@@ -405,7 +426,7 @@ def test_actor_cannot_know_an_arbitrary_dict(actor):
 # call interaction with unnecessary args
 # call interaction with missing parameters
 # call interaction with actor parameter
-# can unknown interaction
+# call unknown interaction
 # call non-interaction
 # getattr no sayings
 # getattr match saying
