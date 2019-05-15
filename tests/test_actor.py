@@ -10,7 +10,7 @@ import pytest
 import sys
 
 from collections import OrderedDict
-from screenplay.actor import Actor, UnknowableArgumentError, MissingParameterError
+from screenplay.actor import Actor, MissingParameterError, UnknowableArgumentError, UnknownSayingError
 from screenplay.pattern import *
 
 
@@ -63,33 +63,20 @@ def assume_things(a=1, b=2):
   return a + b
 
 
-@interaction
-def get_actor(actor):
-  return actor
-
-
-@question
-def some_question():
-  return "answered"
-
-
 @saying
 def try_things(actor, name):
-  def try_it():
-    return f"tried {name}"
-  return try_it
+  if len(name) > 1:
+    def try_it():
+      return f"tried {name}"
+    return try_it
 
 
 @saying
 def shout(actor, name):
-  def out_loud(words):
-    return words.upper()
-  return out_loud
-
-
-@task
-def some_task():
-  pass
+  if name == "shout":
+    def out_loud(words):
+      return words.upper()
+    return out_loud
 
 
 def noop():
@@ -112,16 +99,9 @@ def assert_conditions(actor):
   assert actor.conditions['contain'] == contain
 
 
-def assert_interactions(actor, include_mod=False):
-  if include_mod:
-    assert len(actor.interactions) == 6
-    assert actor.interactions['assume_things'] == assume_things
-    assert actor.interactions['get_actor'] == get_actor
-    assert actor.interactions['some_task'] == some_task
-    assert actor.interactions['some_question'] == some_question
-  else:
-    assert len(actor.interactions) == 2
-
+def assert_interactions(actor):
+  assert len(actor.interactions) == 3
+  assert actor.interactions['assume_things'] == assume_things
   assert actor.interactions['do_it'] == do_it
   assert actor.interactions['whip_it_good'] == whip_it_good
 
@@ -132,10 +112,10 @@ def assert_sayings(actor):
   assert actor.sayings['shout'] == shout
 
 
-def assert_all_functions(actor, include_mod=False):
+def assert_all_functions(actor):
   assert_abilities(actor)
   assert_conditions(actor)
-  assert_interactions(actor, include_mod=include_mod)
+  assert_interactions(actor)
   assert_sayings(actor)
 
 
@@ -275,12 +255,20 @@ def test_actor_knows_an_interaction(actor):
 
 
 def test_actor_knows_a_task(actor):
+  @task
+  def some_task():
+    pass
+
   actor.knows(some_task)
   assert len(actor.interactions) == 1
   assert actor.interactions['some_task'] == some_task
 
 
 def test_actor_knows_a_question(actor):
+  @question
+  def some_question():
+    return "answered"
+
   actor.knows(some_question)
   assert len(actor.interactions) == 1
   assert actor.interactions['some_question'] == some_question
@@ -289,11 +277,12 @@ def test_actor_knows_a_question(actor):
 def test_actor_knows_multiple_interactions_with_one_call_each(actor):
   actor.knows(do_it)
   actor.knows(whip_it_good)
+  actor.knows(assume_things)
   assert_interactions(actor)
 
 
 def test_actor_knows_multiple_interactions_with_one_call_for_all(actor):
-  actor.knows(do_it, whip_it_good)
+  actor.knows(do_it, whip_it_good, assume_things)
   assert_interactions(actor)
 
 
@@ -303,7 +292,7 @@ def test_actor_knows_interactions_in_order(actor):
 
 
 def test_actor_knows_a_duplicate_interaction(actor):
-  actor.knows(do_it, whip_it_good)
+  actor.knows(do_it, whip_it_good, assume_things)
   actor.knows(do_it)
   assert_interactions(actor)
 
@@ -345,7 +334,7 @@ def test_actor_knows_a_duplicate_saying(actor):
 # ------------------------------------------------------------------------------
 
 def test_actor_knows_multiple_types_with_one_call(actor):
-  actor.knows(be_cool, go_super_saiyan, be, contain, do_it, whip_it_good, try_things, shout)
+  actor.knows(be_cool, go_super_saiyan, be, contain, do_it, whip_it_good, assume_things, try_things, shout)
   assert_all_functions(actor)
 
 
@@ -355,7 +344,7 @@ def test_actor_knows_multiple_types_with_one_call(actor):
 
 def test_actor_knows_module(actor):
   actor.knows(sys.modules[__name__])
-  assert_all_functions(actor, include_mod=True)
+  assert_all_functions(actor)
 
 
 # ------------------------------------------------------------------------------
@@ -364,7 +353,7 @@ def test_actor_knows_module(actor):
 
 def test_actor_knows_another_actor(actor):
   other = Actor()
-  other.knows(be_cool, go_super_saiyan, be, contain, do_it, whip_it_good, try_things, shout)
+  other.knows(be_cool, go_super_saiyan, be, contain, do_it, whip_it_good, assume_things, try_things, shout)
   actor.knows(other)
   assert_all_functions(actor)
 
@@ -484,6 +473,10 @@ def test_actor_calls_interaction_with_missing_parameters(actor):
 
 
 def test_actor_calls_interaction_with_an_actor_parameter(actor):
+  @interaction
+  def get_actor(actor):
+    return actor
+  
   response = actor.call(get_actor)
   assert response == actor
 
@@ -493,15 +486,32 @@ def test_actor_calls_a_non_interaction(actor):
     actor.call(noop)
 
 
-# Test Actor
+# ------------------------------------------------------------------------------
+# Tests for Calling Sayings
+# ------------------------------------------------------------------------------
 
-# getattr no sayings
-# getattr match saying
-# getattr unmatched saying
-# getattr match first of multiple sayings
+def test_actor_getattr_matches_saying(actor):
+  actor.knows(shout)
+  response = actor.shout("yay")
+  assert response == "YAY"
 
 
-# Test Sayings
+def test_actor_getattr_matches_first_of_multiple_sayings(actor):
+  actor.knows(shout, try_things)
+  response = actor.shout("yay")
+  assert response == "YAY"
+
+
+def test_actor_getattr_does_not_match_saying(actor):
+  actor.knows(shout, try_things)
+  with pytest.raises(UnknownSayingError):
+    actor.a("stuff")
+
+
+def test_actor_getattr_does_not_have_sayings(actor):
+  with pytest.raises(UnknownSayingError):
+    actor.shout("yay")
+
 
 # call_ability: "can_" success
 # call_ability: "can_" DNE
