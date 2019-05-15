@@ -262,7 +262,7 @@ class WaitTimeoutError(Exception):
 
 # Pythonic Screenplay Actor
 
-def screenplay_actor():
+def init_actor():
   actor = Actor()
   actor.knows(call_ability, call_interaction, traditional_screenplay, wait, wait_on_question)
   return actor
