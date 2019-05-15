@@ -10,7 +10,7 @@ import pytest
 import sys
 
 from collections import OrderedDict
-from screenplay.actor import Actor, UnknowableArgumentError
+from screenplay.actor import Actor, UnknowableArgumentError, MissingParameterError
 from screenplay.pattern import *
 
 
@@ -49,18 +49,28 @@ def contain(actual, value):
 
 
 @interaction
-def do_it(task):
-  return f"{task} is done"
+def do_it(task, speed):
+  return f"{task} at {speed} speed"
 
 
 @interaction
 def whip_it_good():
-  pass
+  return True
+
+
+@interaction
+def assume_things(a=1, b=2):
+  return a + b
+
+
+@interaction
+def get_actor(actor):
+  return actor
 
 
 @question
 def some_question():
-  pass
+  return "answered"
 
 
 @saying
@@ -82,6 +92,10 @@ def some_task():
   pass
 
 
+def noop():
+  pass
+
+
 # ------------------------------------------------------------------------------
 # Pattern Assertion Functions
 # ------------------------------------------------------------------------------
@@ -98,9 +112,11 @@ def assert_conditions(actor):
   assert actor.conditions['contain'] == contain
 
 
-def assert_interactions(actor, include_tq=False):
-  if include_tq:
-    assert len(actor.interactions) == 4
+def assert_interactions(actor, include_mod=False):
+  if include_mod:
+    assert len(actor.interactions) == 6
+    assert actor.interactions['assume_things'] == assume_things
+    assert actor.interactions['get_actor'] == get_actor
     assert actor.interactions['some_task'] == some_task
     assert actor.interactions['some_question'] == some_question
   else:
@@ -116,10 +132,10 @@ def assert_sayings(actor):
   assert actor.sayings['shout'] == shout
 
 
-def assert_all_functions(actor, include_tq=False):
+def assert_all_functions(actor, include_mod=False):
   assert_abilities(actor)
   assert_conditions(actor)
-  assert_interactions(actor, include_tq=include_tq)
+  assert_interactions(actor, include_mod=include_mod)
   assert_sayings(actor)
 
 
@@ -339,7 +355,7 @@ def test_actor_knows_multiple_types_with_one_call(actor):
 
 def test_actor_knows_module(actor):
   actor.knows(sys.modules[__name__])
-  assert_all_functions(actor, include_tq=True)
+  assert_all_functions(actor, include_mod=True)
 
 
 # ------------------------------------------------------------------------------
@@ -358,11 +374,8 @@ def test_actor_knows_another_actor(actor):
 # ------------------------------------------------------------------------------
 
 def test_actor_cannot_know_an_arbitrary_function(actor):
-  def func():
-    pass
-
   with pytest.raises(UnknowableArgumentError):
-    actor.knows(func)
+    actor.knows(noop)
 
 
 def test_actor_cannot_know_an_arbitrary_object(actor):
@@ -408,26 +421,80 @@ def test_actor_can_do_ability_with_args(actor):
 
 
 def test_actor_cannot_do_non_ability(actor):
-  def noop():
-    pass
-  
   with pytest.raises(NotAbilityError):
     actor.can(noop)
 
 
+# ------------------------------------------------------------------------------
+# Tests for Calling Interactions
+# ------------------------------------------------------------------------------
+
+def test_actor_calls_interaction_without_parameters(actor):
+  response = actor.call(whip_it_good)
+  assert response
+
+
+def test_actor_calls_interaction_with_args_and_without_traits(actor):
+  response = actor.call(do_it, task="program", speed="lightning")
+  assert response == "program at lightning speed"
+
+
+def test_actor_calls_interaction_without_args_and_with_traits(actor):
+  actor.knows(task="program", speed="lightning")
+  response = actor.call(do_it)
+  assert response == "program at lightning speed"
+
+
+def test_actor_calls_interaction_with_both_args_and_traits(actor):
+  actor.knows(task="program")
+  response = actor.call(do_it, speed="lightning")
+  assert response == "program at lightning speed"
+
+
+def test_actor_calls_interaction_with_args_that_override_traits(actor):
+  actor.knows(task="program", speed="lightning")
+  response = actor.call(do_it, task="drive")
+  assert response == "drive at lightning speed"
+
+
+def test_actor_calls_interaction_with_unnecessary_args_that_are_ignored(actor):
+  response = actor.call(do_it, task="program", speed="lightning", garbage=True)
+  assert response == "program at lightning speed"
+
+
+def test_actor_calls_interaction_with_unnecessary_traits_that_are_ignored(actor):
+  actor.knows(garbage=True)
+  response = actor.call(do_it, task="program", speed="lightning")
+  assert response == "program at lightning speed"
+
+
+def test_actor_calls_interaction_with_default_parameters(actor):
+  response = actor.call(assume_things)
+  assert response == 3
+
+
+def test_actor_calls_interaction_with_args_and_default_parameters(actor):
+  response = actor.call(assume_things, b=9)
+  assert response == 10
+
+
+def test_actor_calls_interaction_with_missing_parameters(actor):
+  with pytest.raises(MissingParameterError):
+    actor.call(do_it)
+
+
+def test_actor_calls_interaction_with_an_actor_parameter(actor):
+  response = actor.call(get_actor)
+  assert response == actor
+
+
+def test_actor_calls_a_non_interaction(actor):
+  with pytest.raises(NotInteractionError):
+    actor.call(noop)
+
+
 # Test Actor
 
-# call interaction without parameters
-# call interaction without args and no traits
-# call interaction with args and no traits
-# call interaction without args and with traits
-# call interaction with some args and traits
-# call interaction with unnecessary traits
-# call interaction with unnecessary args
-# call interaction with missing parameters
-# call interaction with actor parameter
-# call unknown interaction
-# call non-interaction
 # getattr no sayings
 # getattr match saying
 # getattr unmatched saying
