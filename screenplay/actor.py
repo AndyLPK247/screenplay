@@ -7,7 +7,6 @@ from collections import OrderedDict
 from screenplay.pattern import *
 
 
-# TODO: 'check' condition?
 # TODO: condition with *args?
 # TODO: Reconsider interaction *args?
 
@@ -36,9 +35,9 @@ class Actor:
     self._get_members(members, is_interaction, self._interactions)
     self._get_members(members, is_saying, self._sayings)
 
-  def _get_args(self, interaction, arg_dict):
+  def _get_args(self, function, arg_dict):
     applicable_args = dict()
-    params = inspect.signature(interaction).parameters
+    params = inspect.signature(function).parameters
 
     for name, param in params.items():
       if name in arg_dict:
@@ -48,7 +47,7 @@ class Actor:
       elif name == 'actor':
         applicable_args['actor'] = self
       elif param.default == inspect.Parameter.empty:
-        raise MissingParameterError(name, interaction)
+        raise MissingParameterError(name, function)
     
     return applicable_args
 
@@ -86,6 +85,11 @@ class Actor:
     validate_ability(ability)
     traits = ability(**kwargs)
     self._traits.update(traits)
+
+  def check(self, condition, **kwargs):
+    validate_condition(condition)
+    applicable_args = self._get_args(condition, kwargs)
+    return condition(**applicable_args)
 
   def knows(self, *args, **kwargs):
     self._traits.update(kwargs)

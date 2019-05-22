@@ -55,6 +55,11 @@ def contain(actual, value):
   return value in actual
 
 
+@condition
+def assume_bool(a=1, b=1):
+  return a == b
+
+
 @interaction
 def do_it(task, speed):
   return f"{task} at {speed} speed"
@@ -101,9 +106,10 @@ def assert_abilities(actor):
 
 
 def assert_conditions(actor):
-  assert len(actor.conditions) == 2
+  assert len(actor.conditions) == 3
   assert actor.conditions['be'] == be
   assert actor.conditions['contain'] == contain
+  assert actor.conditions['assume_bool'] == assume_bool
 
 
 def assert_interactions(actor):
@@ -232,11 +238,12 @@ def test_actor_knows_a_condition(actor):
 def test_actor_knows_multiple_conditions_with_one_call_each(actor):
   actor.knows(be)
   actor.knows(contain)
+  actor.knows(assume_bool)
   assert_conditions(actor)
 
 
 def test_actor_knows_multiple_conditions_with_one_call_for_all(actor):
-  actor.knows(be, contain)
+  actor.knows(be, contain, assume_bool)
   assert_conditions(actor)
 
 
@@ -246,7 +253,7 @@ def test_actor_knows_conditions_in_order(actor):
 
 
 def test_actor_knows_a_duplicate_condition(actor):
-  actor.knows(be, contain)
+  actor.knows(be, contain, assume_bool)
   actor.knows(be)
   assert_conditions(actor)
 
@@ -341,7 +348,8 @@ def test_actor_knows_a_duplicate_saying(actor):
 # ------------------------------------------------------------------------------
 
 def test_actor_knows_multiple_types_with_one_call(actor):
-  actor.knows(be_cool, go_super_saiyan, be, contain, do_it, whip_it_good, assume_things, try_things, shout)
+  actor.knows(be_cool, go_super_saiyan, be, contain, assume_bool, do_it, 
+    whip_it_good, assume_things, try_things, shout)
   assert_all_functions(actor)
 
 
@@ -360,7 +368,8 @@ def test_actor_knows_module(actor):
 
 def test_actor_knows_another_actor(actor):
   other = Actor()
-  other.knows(be_cool, go_super_saiyan, be, contain, do_it, whip_it_good, assume_things, try_things, shout)
+  other.knows(be_cool, go_super_saiyan, be, contain, assume_bool, do_it, 
+    whip_it_good, assume_things, try_things, shout)
   actor.knows(other)
   assert_all_functions(actor)
 
@@ -491,6 +500,91 @@ def test_actor_calls_interaction_with_an_actor_parameter(actor):
 def test_actor_calls_a_non_interaction(actor):
   with pytest.raises(NotInteractionError):
     actor.call(noop)
+
+
+# ------------------------------------------------------------------------------
+# Tests for Checking Conditions
+# ------------------------------------------------------------------------------
+
+def test_actor_checks_condition_without_parameters_to_be_true(actor):
+  @condition
+  def always_true():
+    return True
+  
+  response = actor.check(always_true)
+  assert response == True
+
+
+def test_actor_checks_condition_without_parameters_to_be_false(actor):
+  @condition
+  def always_false():
+    return False
+  
+  response = actor.check(always_false)
+  assert response == False
+
+
+def test_actor_checks_condition_with_args_and_without_traits(actor):
+  response = actor.check(be, actual=4, value=4)
+  assert response == True
+
+
+def test_actor_checks_condition_without_args_and_with_traits(actor):
+  actor.knows(actual="hi", value="hi")
+  response = actor.check(be)
+  assert response == True
+
+
+def test_actor_checks_condition_with_both_args_and_traits(actor):
+  actor.knows(actual="hi")
+  response = actor.check(be, value="hi")
+  assert response == True
+
+
+def test_actor_checks_condition_with_args_that_override_traits(actor):
+  actor.knows(actual=99, value=99)
+  response = actor.check(be, value=2)
+  assert response == False
+
+
+def test_actor_checks_condition_with_unnecessary_args_that_are_ignored(actor):
+  response = actor.check(be, actual=4, value=4, garbage="bo-ha-ha")
+  assert response == True
+
+
+def test_actor_checks_condition_with_unnecessary_traits_that_are_ignored(actor):
+  actor.knows(actual=99, value=99, garbage="stuff")
+  response = actor.check(be)
+  assert response == True
+
+
+def test_actor_checks_condition_with_default_parameters(actor):
+  response = actor.check(assume_bool)
+  assert response == True
+
+
+def test_actor_checks_condition_with_args_and_default_parameters(actor):
+  response = actor.check(assume_bool, b=2)
+  assert response == False
+
+
+def test_actor_checks_condition_with_missing_parameters(actor):
+  with pytest.raises(MissingParameterError):
+    actor.check(be)
+
+
+def test_actor_checks_condition_with_an_actor_parameter(actor):
+  @condition
+  def has_actor(actor):
+    return actor is not None
+  
+  response = actor.check(has_actor)
+  assert response == True
+
+
+def test_actor_checks_a_non_condition(actor):
+  with pytest.raises(NotConditionError):
+    actor.check(noop)
 
 
 # ------------------------------------------------------------------------------
