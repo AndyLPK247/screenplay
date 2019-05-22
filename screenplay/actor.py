@@ -151,6 +151,16 @@ def call_ability(actor, name):
 
 
 @saying
+def ask_question(actor, name):
+  if name.startswith('get_'):
+    question_name = name[4:]
+    if question_name in actor.interactions:
+      interaction = actor.interactions[question_name]
+      if is_question(interaction):
+        return functools.partial(actor.call, interaction)
+
+
+@saying
 def call_interaction(actor, name):
   if name in actor.interactions:
     interaction = actor.interactions[name]
@@ -268,5 +278,6 @@ class WaitTimeoutError(Exception):
 
 def init_actor():
   actor = Actor()
-  actor.knows(call_ability, call_interaction, traditional_screenplay, wait, wait_on_question)
+  actor.knows(call_ability, ask_question, call_interaction, traditional_screenplay)
+  actor.knows(wait, wait_on_question)
   return actor

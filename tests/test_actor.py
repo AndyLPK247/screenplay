@@ -729,6 +729,25 @@ def test_actor_calls_a_non_interaction_via_saying(pythonic_actor):
 
 
 # ------------------------------------------------------------------------------
+# Tests for Asking Questions via "get_"
+# ------------------------------------------------------------------------------
+
+def test_actor_gets_an_answer_to_a_question_via_saying(pythonic_actor):
+  @question
+  def greeting(name):
+    return f'Hello, {name}!'
+
+  pythonic_actor.knows(greeting)
+  response = pythonic_actor.get_greeting(name='Andy')
+  assert response == 'Hello, Andy!'
+
+
+def test_actor_asks_a_non_question_via_saying(pythonic_actor):
+  with pytest.raises(UnknownSayingError):
+    pythonic_actor.get_noop()
+
+
+# ------------------------------------------------------------------------------
 # Tests for Calling Tasks via "attempts_to"
 # ------------------------------------------------------------------------------
 
@@ -755,7 +774,7 @@ def test_actor_attempts_to_do_a_raw_function(pythonic_actor):
 
 
 # ------------------------------------------------------------------------------
-# Tests for Calling Tasks via "asks_for"
+# Tests for Calling Questions via "asks_for"
 # ------------------------------------------------------------------------------
 
 def test_actor_asks_for_a_question(pythonic_actor):
