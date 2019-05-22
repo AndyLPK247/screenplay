@@ -219,8 +219,6 @@ def on(actor, question, **q_args):
 
 @interaction
 def to(actor, condition, **c_args):
-  # TODO: filter args for condition call
-
   validate_condition(condition)
 
   timeout = actor.traits.timeout
@@ -235,7 +233,7 @@ def to(actor, condition, **c_args):
   while not satisfied and time.monotonic() < end:
     time.sleep(interval)
     answer = actor.call(question, **q_args)
-    satisfied = condition(answer, **c_args)
+    satisfied = actor.check(condition, **c_args)
 
   if not satisfied:
     raise WaitTimeoutError(timeout, question, q_args, condition, c_args)
