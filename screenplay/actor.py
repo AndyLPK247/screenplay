@@ -1,3 +1,16 @@
+"""
+This module contains the Actor class.
+It also includes Pythonic sayings and wait interactions.
+Advice: initialize actors using 'init_actor'.
+"""
+
+# TODO: Condition with *args?
+# TODO: Reconsider interaction *args?
+
+# ------------------------------------------------------------------------------
+# Imports
+# ------------------------------------------------------------------------------
+
 import functools
 import inspect
 import sys
@@ -7,11 +20,9 @@ from collections import OrderedDict
 from screenplay.pattern import *
 
 
-# TODO: condition with *args?
-# TODO: Reconsider interaction *args?
-
-
-# Screenplay Actor
+# ------------------------------------------------------------------------------
+# Screenplay Actor Class
+# ------------------------------------------------------------------------------
 
 class Actor:
   def __init__(self):
@@ -118,7 +129,9 @@ class Actor:
     raise UnknownSayingError(attr)
 
 
+# ------------------------------------------------------------------------------
 # Actor Exceptions
+# ------------------------------------------------------------------------------
 
 class MissingParameterError(Exception):
   def __init__(self, parameter, interaction):
@@ -139,7 +152,9 @@ class UnknownSayingError(Exception):
     self.saying_name = saying_name
 
 
-# Common Sayings
+# ------------------------------------------------------------------------------
+# Pythonic Sayings
+# ------------------------------------------------------------------------------
 
 @saying
 def call_ability(actor, name):
@@ -181,7 +196,9 @@ def traditional_screenplay(actor, name):
     return asks_for
 
 
+# ------------------------------------------------------------------------------
 # Wait Interactions
+# ------------------------------------------------------------------------------
 
 @interaction
 def wait(actor, timeout=30, interval=1):
@@ -224,7 +241,9 @@ def to(actor, condition, **c_args):
     raise WaitTimeoutError(timeout, question, q_args, condition, c_args)
 
 
+# ------------------------------------------------------------------------------
 # Wait Sayings
+# ------------------------------------------------------------------------------
 
 @saying
 def on_question(actor, name):
@@ -252,7 +271,9 @@ def to_condition(actor, name):
       return functools.partial(actor.call, to, actor=actor, condition=condition)
 
 
+# ------------------------------------------------------------------------------
 # Wait Exceptions
+# ------------------------------------------------------------------------------
 
 def _format_call(func, kwargs):
   name = func.__name__
@@ -274,7 +295,9 @@ class WaitTimeoutError(Exception):
     self.c_args = c_args
 
 
-# Pythonic Screenplay Actor
+# ------------------------------------------------------------------------------
+# Pythonic Screenplay Actor Builder
+# ------------------------------------------------------------------------------
 
 def init_actor():
   actor = Actor()
