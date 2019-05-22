@@ -1,5 +1,11 @@
+"""
+This module contains decorators, functions, and exceptions for the Screenplay pattern.
+These decorators enable regular functions to be used as Screenplay functions.
+"""
 
+# ------------------------------------------------------------------------------
 # Decorators
+# ------------------------------------------------------------------------------
 
 def _screenplay_decorator(
   func,
@@ -43,7 +49,9 @@ def saying(func):
   return _screenplay_decorator(func, saying=True)
 
 
+# ------------------------------------------------------------------------------
 # Predicates
+# ------------------------------------------------------------------------------
 
 def _is_screenplay_func(func, attr):
   return callable(func) and hasattr(func, attr) and getattr(func, attr)
@@ -73,7 +81,9 @@ def is_saying(func):
   return _is_screenplay_func(func, 'is_saying')
 
 
+# ------------------------------------------------------------------------------
 # Exceptions
+# ------------------------------------------------------------------------------
 
 class NotScreenplayFunctionError(Exception):
   def __init__(self, func, functype):
@@ -111,7 +121,9 @@ class NotSayingError(NotScreenplayFunctionError):
     super().__init__(func, 'a saying')
 
 
+# ------------------------------------------------------------------------------
 # Validations
+# ------------------------------------------------------------------------------
 
 def _validate_screenplay_func(func, predicate, exception):
     if not predicate(func):
