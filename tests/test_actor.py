@@ -10,8 +10,10 @@ import pytest
 import sys
 
 from collections import OrderedDict
-from screenplay.actor import Actor, init_actor
-from screenplay.actor import UnknowableArgumentError, MissingParameterError, UnknownSayingError
+from screenplay.actor.actor import Actor
+from screenplay.actor.builders import init_actor
+from screenplay.actor.exceptions import UnknowableArgumentError, MissingParameterError, UnknownSayingError
+# from screenplay.actor import wait, on, to
 from screenplay.pattern import *
 
 
@@ -796,10 +798,22 @@ def test_actor_asks_for_a_raw_function(pythonic_actor):
     pythonic_actor.asks_for(noop)
 
 
-# Test Wait Interactions
+# ------------------------------------------------------------------------------
+# Tests for Wait Interactions
+# ------------------------------------------------------------------------------
 
-# wait: defaults
-# wait: arg values
+# def test_wait_with_default_args(actor):
+#   wait_actor = wait(actor)
+#   assert wait_actor.traits['timeout'] == 30
+#   assert wait_actor.traits['interval'] == 1
+
+
+# def test_wait_with_explicit_args(actor):
+#   wait_actor = wait(actor, timeout=15, interval=0)
+#   assert wait_actor.traits['timeout'] == 15
+#   assert wait_actor.traits['interval'] == 0
+
+
 # on: question without args
 # on: question with args
 # on: non-question
