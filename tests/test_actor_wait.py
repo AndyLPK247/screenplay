@@ -1,26 +1,74 @@
+"""
+This module contains unit tests for wait interactions.
+"""
+
+# ------------------------------------------------------------------------------
+# Imports
+# ------------------------------------------------------------------------------
+
+import pytest
+
+from screenplay.actor.actor import Actor
+from screenplay.actor.wait import wait, on
+from screenplay.pattern import *
+
+
+# ------------------------------------------------------------------------------
+# Fixtures
+# ------------------------------------------------------------------------------
+
+@pytest.fixture
+def actor():
+  """Creates an Actor instance with an empty context."""
+  return Actor()
+
+
+# ------------------------------------------------------------------------------
+# Pattern Functions
+# ------------------------------------------------------------------------------
+
+@question
+def always_one():
+  return 1
+
+
+@question
+def same_value(value):
+  return value
+
 
 # ------------------------------------------------------------------------------
 # Tests for Wait Interactions
 # ------------------------------------------------------------------------------
 
-# def test_wait_with_default_args(actor):
-#   wait_actor = wait(actor)
-#   assert wait_actor.traits['timeout'] == 30
-#   assert wait_actor.traits['interval'] == 1
+def test_wait_with_default_args(actor):
+  wait_actor = wait(actor)
+  assert wait_actor.traits['timeout'] == 30
+  assert wait_actor.traits['interval'] == 1
 
 
-# def test_wait_with_explicit_args(actor):
-#   wait_actor = wait(actor, timeout=15, interval=0)
-#   assert wait_actor.traits['timeout'] == 15
-#   assert wait_actor.traits['interval'] == 0
+def test_wait_with_explicit_args(actor):
+  wait_actor = wait(actor, timeout=15, interval=0)
+  assert wait_actor.traits['timeout'] == 15
+  assert wait_actor.traits['interval'] == 0
 
 
-# on: question without args
-# on: question with args
-# on: non-question
+def test_on_without_args(actor):
+  on_actor = on(actor, always_one)
+  assert on_actor.traits['on_question'] == always_one
+  assert len(on_actor.traits['on_question_args']) == 0
+
+
+def test_on_with_args(actor):
+  on_actor = on(actor, same_value, value='stuff')
+  assert on_actor.traits['on_question'] == same_value
+  assert on_actor.traits['on_question_args'] == {'value': 'stuff'}
+
+
 # to: condition without args
 # to: condition with args
 # to: non-condition
+# to: non-question
 # to: success with no need to wait
 # to: success after waiting
 # to: no success after waiting (explicit timeout and interval)
