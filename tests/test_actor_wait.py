@@ -9,8 +9,8 @@ This module contains unit tests for wait interactions.
 import pytest
 
 from screenplay.actor.actor import Actor
-from screenplay.actor.wait import wait, on
 from screenplay.pattern import *
+from screenplay.wait import wait, on, wait_on_question
 
 
 # ------------------------------------------------------------------------------
@@ -19,8 +19,9 @@ from screenplay.pattern import *
 
 @pytest.fixture
 def actor():
-  """Creates an Actor instance with an empty context."""
-  return Actor()
+  a = Actor()
+  a.knows(wait, wait_on_question)
+  return a
 
 
 # ------------------------------------------------------------------------------
