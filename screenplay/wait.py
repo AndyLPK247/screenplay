@@ -40,19 +40,19 @@ def on(actor, question, **q_args):
 def to(actor, condition, **c_args):
   validate_condition(condition)
 
-  timeout = actor.traits.timeout
-  interval = actor.traits.timeout
-  question = actor.traits.on_question
-  q_args = actor.traits.on_question_args
+  timeout = actor.traits['timeout']
+  interval = actor.traits['interval']
+  question = actor.traits['on_question']
+  q_args = actor.traits['on_question_args']
 
   end = time.monotonic() + timeout
   answer = actor.call(question, **q_args)
-  satisfied = condition(answer, **c_args)
+  satisfied = condition(actual=answer, **c_args)
 
   while not satisfied and time.monotonic() < end:
     time.sleep(interval)
     answer = actor.call(question, **q_args)
-    satisfied = actor.check(condition, **c_args)
+    satisfied = actor.check(condition, actual=answer, **c_args)
 
   if not satisfied:
     raise WaitTimeoutError(timeout, question, q_args, condition, c_args)

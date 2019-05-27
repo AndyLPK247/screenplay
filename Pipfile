@@ -9,6 +9,7 @@ verify_ssl = true
 pytest = "*"
 selenium = "*"
 pytest-cov = "*"
+pytest-mock = "*"
 
 [requires]
 python_version = "3.7"
