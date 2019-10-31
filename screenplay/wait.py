@@ -47,7 +47,7 @@ def to(actor, condition, **c_args):
 
   end = time.monotonic() + timeout
   answer = actor.call(question, **q_args)
-  satisfied = condition(actual=answer, **c_args)
+  satisfied = actor.check(condition, actual=answer, **c_args)
 
   while not satisfied and time.monotonic() < end:
     time.sleep(interval)
