@@ -4,8 +4,8 @@ Actor is the main "actor" in the Screenplay pattern.
 Pattern functions (like interactions) are in other modules.
 """
 
-# TODO: Condition with *args?
-# TODO: Reconsider interaction *args?
+# TODO: *args for callables?
+# TODO: class for fluent extensions?
 
 # ------------------------------------------------------------------------------
 # Imports
@@ -17,6 +17,7 @@ import inspect
 from collections import OrderedDict
 from screenplay.actor.exceptions import *
 from screenplay.pattern import *
+
 
 # ------------------------------------------------------------------------------
 # Screenplay Actor Class
