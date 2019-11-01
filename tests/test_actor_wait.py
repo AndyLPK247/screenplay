@@ -129,8 +129,7 @@ def test_to_function_with_non_condition(actor):
 
 # def test_actor_call_wait_chain_with_args(actor):
 #   # Expect no timeout exception
-#   actor.knows(wait, call_interaction)
-#   actor.wait(timeout=0.01, interval=0).on(question=counter).to(condition=be, value=5)
+#   actor.call(wait, timeout=0.01, interval=0).on(question=counter).to(condition=be, value=5)
 
 
 # def test_actor_call_wait_chain_with_traits(actor):

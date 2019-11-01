@@ -9,7 +9,7 @@ This module contains unit tests for Pythonic sayings for Screenplay Actors.
 import pytest
 
 from screenplay.actor.builders import init_actor
-from screenplay.actor.exceptions import MissingParameterError, UnknownSayingError
+from screenplay.actor.exceptions import MissingParametersError, UnknownSayingError
 from screenplay.pattern import *
 
 
@@ -149,9 +149,19 @@ def test_actor_calls_interaction_with_args_and_default_parameters_via_saying(pyt
   assert response == 10
 
 
+def test_actor_calls_interaction_with_every_type_of_parameter_via_saying(pythonic_actor):
+  @interaction
+  def add_stuff(first, second, third=3, **kwargs):
+    return first + second + third + kwargs['a'] + kwargs['b'] + kwargs['c']
+
+  pythonic_actor.knows(add_stuff, first=1)
+  result = pythonic_actor.add_stuff(second=2, a=4, b=5, c=6)
+  assert result == 21
+
+
 def test_actor_calls_interaction_with_missing_parameters_via_saying(pythonic_actor):
   pythonic_actor.knows(do_it)
-  with pytest.raises(MissingParameterError):
+  with pytest.raises(MissingParametersError):
     pythonic_actor.do_it()
 
 

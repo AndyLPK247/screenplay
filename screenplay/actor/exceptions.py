@@ -6,11 +6,11 @@ This module contains Actor exceptions.
 # Actor Exceptions
 # ------------------------------------------------------------------------------
 
-class MissingParameterError(Exception):
-  def __init__(self, parameter, interaction):
-    super().__init__(f'Parameter "{parameter}" is missing for {interaction.__name__}')
-    self.parameter = parameter
+class MissingParametersError(Exception):
+  def __init__(self, interaction, parameters):
+    super().__init__(f'{interaction.__name__} is missing the following parameters: {", ".join(parameters)}')
     self.interaction = interaction
+    self.parameters = parameters
 
 
 class UnknowableArgumentError(Exception):

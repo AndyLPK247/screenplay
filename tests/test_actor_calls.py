@@ -10,7 +10,7 @@ import pytest
 import sys
 
 from screenplay.actor.actor import Actor
-from screenplay.actor.exceptions import MissingParameterError, UnknownSayingError
+from screenplay.actor.exceptions import MissingParametersError, UnknownSayingError
 from screenplay.pattern import *
 
 
@@ -160,7 +160,7 @@ def test_actor_calls_interaction_with_args_and_default_parameters(actor):
 
 
 def test_actor_calls_interaction_with_missing_parameters(actor):
-  with pytest.raises(MissingParameterError):
+  with pytest.raises(MissingParametersError):
     actor.call(do_it)
 
 
@@ -171,6 +171,34 @@ def test_actor_calls_interaction_with_an_actor_parameter(actor):
   
   response = actor.call(get_actor)
   assert response == actor
+
+
+def test_actor_calls_interaction_with_variable_keyword_args(actor):
+  @interaction
+  def add_stuff(**kwargs):
+    return kwargs['a'] + kwargs['b'] + kwargs['c']
+
+  result = actor.call(add_stuff, a=1, b=2, c=3)
+  assert result == 6
+
+
+def test_actor_calls_interaction_with_positional_and_variable_keyword_args(actor):
+  @interaction
+  def add_stuff(first, second, **kwargs):
+    return first + second + kwargs['a'] + kwargs['b'] + kwargs['c']
+
+  result = actor.call(add_stuff, first=4, second=5, a=1, b=2, c=3)
+  assert result == 15
+
+
+def test_actor_calls_interaction_with_every_type_of_parameter(actor):
+  @interaction
+  def add_stuff(first, second, third=3, **kwargs):
+    return first + second + third + kwargs['a'] + kwargs['b'] + kwargs['c']
+
+  actor.knows(first=1)
+  result = actor.call(add_stuff, second=2, a=4, b=5, c=6)
+  assert result == 21
 
 
 def test_actor_calls_a_non_interaction(actor):
@@ -245,7 +273,7 @@ def test_actor_checks_condition_with_args_and_default_parameters(actor):
 
 
 def test_actor_checks_condition_with_missing_parameters(actor):
-  with pytest.raises(MissingParameterError):
+  with pytest.raises(MissingParametersError):
     actor.check(be)
 
 

@@ -46,20 +46,32 @@ class Actor:
     self._get_members(members, is_saying, self._sayings)
 
   def _get_args(self, function, arg_dict):
-    applicable_args = dict()
     params = inspect.signature(function).parameters
+    full_context = self._get_full_context(arg_dict)
 
-    for name, param in params.items():
-      if name in arg_dict:
-        applicable_args[name] = arg_dict[name]
-      elif name in self._traits:
-        applicable_args[name] = self._traits[name]
-      elif name == 'actor':
-        applicable_args['actor'] = self
-      elif param.default == inspect.Parameter.empty:
-        raise MissingParameterError(name, function)
+    kwargs = {n: p for n, p in params.items()
+              if p.kind == inspect.Parameter.VAR_KEYWORD}
     
+    missing = {n: p for n, p in params.items()
+               if n not in full_context
+               and p.kind != inspect.Parameter.VAR_POSITIONAL
+               and p.kind != inspect.Parameter.VAR_KEYWORD
+               and p.default == inspect.Parameter.empty}
+
+    if len(missing) > 0:
+      raise MissingParametersError(function, missing.keys())
+    elif len(kwargs) > 0:
+      applicable_args = full_context
+    else:
+      applicable_args = {n: p for n, p in full_context.items() if n in params}
+
     return applicable_args
+
+  def _get_full_context(self, arg_dict):
+    full_context = {'actor': self}
+    full_context.update(self._traits)
+    full_context.update(arg_dict)
+    return full_context
 
   def _get_members(self, members, predicate, target):
     for name, f in members:
