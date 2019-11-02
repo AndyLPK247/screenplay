@@ -8,9 +8,9 @@ This module contains unit tests for Pythonic sayings for Screenplay Actors.
 
 import pytest
 
-from screenplay.actor.builders import init_actor
-from screenplay.actor.exceptions import MissingParametersError, UnknownSayingError
-from screenplay.pattern import *
+from screenplay.core.builders import init_actor
+from screenplay.core.exceptions import MissingParametersError, UnknownSayingError
+from screenplay.core.pattern import *
 
 
 # ------------------------------------------------------------------------------

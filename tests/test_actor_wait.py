@@ -9,9 +9,9 @@ This module contains unit tests for wait interactions.
 import pytest
 import time
 
-from screenplay.actor.actor import Actor, UnknownSayingError
-from screenplay.pattern import *
-from screenplay.wait import *
+from screenplay.core.actor import Actor, UnknownSayingError
+from screenplay.core.pattern import *
+from screenplay.core.wait import *
 
 
 # ------------------------------------------------------------------------------

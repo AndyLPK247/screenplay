@@ -9,7 +9,7 @@ The standard 'init_actor' builder automatically adds them to the constructed act
 
 import functools
 
-from screenplay.pattern import *
+from screenplay.core.pattern import *
 
 
 # ------------------------------------------------------------------------------

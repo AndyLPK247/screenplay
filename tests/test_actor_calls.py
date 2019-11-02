@@ -9,9 +9,9 @@ This module contains unit tests for Actor methods that call pattern functions.
 import pytest
 import sys
 
-from screenplay.actor.actor import Actor
-from screenplay.actor.exceptions import MissingParametersError, UnknownSayingError
-from screenplay.pattern import *
+from screenplay.core.actor import Actor
+from screenplay.core.exceptions import MissingParametersError, UnknownSayingError
+from screenplay.core.pattern import *
 
 
 # ------------------------------------------------------------------------------

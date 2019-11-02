@@ -10,9 +10,9 @@ import pytest
 import sys
 
 from collections import OrderedDict
-from screenplay.actor.actor import Actor
-from screenplay.actor.exceptions import UnknowableArgumentError
-from screenplay.pattern import *
+from screenplay.core.actor import Actor
+from screenplay.core.exceptions import UnknowableArgumentError
+from screenplay.core.pattern import *
 
 
 # ------------------------------------------------------------------------------

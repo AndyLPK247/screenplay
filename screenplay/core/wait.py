@@ -10,9 +10,9 @@ These allow the actor to wait for given conditions to be met.
 import functools
 import time
 
-from screenplay.actor.actor import Actor
-from screenplay.actor.sayings import call_interaction
-from screenplay.pattern import *
+from screenplay.core.actor import Actor
+from screenplay.core.sayings import call_interaction
+from screenplay.core.pattern import *
 
 
 # ------------------------------------------------------------------------------

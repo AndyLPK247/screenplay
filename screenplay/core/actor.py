@@ -16,8 +16,8 @@ import functools
 import inspect
 
 from collections import OrderedDict
-from screenplay.actor.exceptions import *
-from screenplay.pattern import *
+from screenplay.core.exceptions import *
+from screenplay.core.pattern import *
 
 
 # ------------------------------------------------------------------------------

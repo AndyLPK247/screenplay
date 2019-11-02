@@ -8,8 +8,8 @@ As a best practice, only use builders to initialize Actor instances.
 # Imports
 # ------------------------------------------------------------------------------
 
-from screenplay.actor.actor import Actor
-from screenplay.actor.sayings import call_ability, ask_question, call_interaction, traditional_screenplay
+from screenplay.core.actor import Actor
+from screenplay.core.sayings import call_ability, ask_question, call_interaction, traditional_screenplay
 
 
 # ------------------------------------------------------------------------------
