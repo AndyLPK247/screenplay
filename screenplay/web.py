@@ -1,7 +1,19 @@
-from screenplay.pattern import ability, question
+"""
+This module provides interactions for Web UI browser automation.
+It uses Selenium WebDriver.
+"""
+
+# ------------------------------------------------------------------------------
+# Imports
+# ------------------------------------------------------------------------------
+
+from screenplay.core.pattern import ability, question, task
+from screenplay.core.wait import wait
 
 
-# Locator
+# ------------------------------------------------------------------------------
+# Locator Class
+# ------------------------------------------------------------------------------
 
 class Locator:
   def __init__(self, name, by, query):
@@ -13,30 +25,36 @@ class Locator:
     return f'{self.name} ({self.by}: {self.query})'
 
 
+# ------------------------------------------------------------------------------
 # Abilities
+# ------------------------------------------------------------------------------
 
 @ability
 def browse_the_web(browser, timeout):
   return {'browser': browser, 'timeout': timeout}
 
 
+# ------------------------------------------------------------------------------
 # Tasks
+# ------------------------------------------------------------------------------
+
+# @task
+# def click(actor, locator, browser):
+#   actor.wait().on(question=appearance, locator=locator).to(condition=be, value=true)
+#   # TODO: should web actors know all web interactions, waiting, and conditions?
 
 
+# ------------------------------------------------------------------------------
 # Questions
+# ------------------------------------------------------------------------------
 
 @question
-def appearance(locator, browser):
+def appearance(browser, locator):
   return existence(locator, browser) and \
     browser.find_element(locator.by).is_displayed()
 
 
 @question
-def existence(locator, browser):
+def existence(browser, locator):
   elements = browser.find_elements(locator.by, locator.query)
   return len(elements) > 0
-
-
-# Temporary
-def noninteraction():
-  pass
