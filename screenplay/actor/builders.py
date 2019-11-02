@@ -17,6 +17,4 @@ from screenplay.actor.sayings import call_ability, ask_question, call_interactio
 # ------------------------------------------------------------------------------
 
 def init_actor():
-  actor = Actor()
-  actor.knows(call_ability, ask_question, call_interaction, traditional_screenplay)
-  return actor
+  return Actor(call_ability, ask_question, call_interaction, traditional_screenplay)

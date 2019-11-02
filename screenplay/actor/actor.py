@@ -25,12 +25,14 @@ from screenplay.pattern import *
 # ------------------------------------------------------------------------------
 
 class Actor:
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
     self._abilities = OrderedDict()
     self._conditions = OrderedDict()
     self._interactions = OrderedDict()
     self._sayings = OrderedDict()
     self._traits = OrderedDict()
+
+    self.knows(*args, **kwargs)
 
   def _add_actor_context(self, actor):
     self._abilities.update(actor.abilities)

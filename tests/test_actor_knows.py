@@ -382,3 +382,55 @@ def test_actor_cannot_know_an_arbitrary_dict(actor):
   stuff = dict(a=1, b=2, c=3)
   with pytest.raises(UnknowableArgumentError):
     actor.knows(stuff)
+
+
+# ------------------------------------------------------------------------------
+# Tests for Knowing Items via Initialization
+# ------------------------------------------------------------------------------
+
+def test_initial_actor_knows_traits():
+  actor = Actor(a=1, b=2)
+  assert len(actor.traits) == 2
+  assert actor.traits['a'] == 1
+  assert actor.traits['b'] == 2
+
+
+def test_initial_actor_knows_abilities():
+  actor = Actor(be_cool)
+  assert len(actor.abilities) == 1
+  assert actor.abilities['be_cool'] == be_cool
+
+
+def test_initial_actor_knows_conditions():
+  actor = Actor(be)
+  assert len(actor.conditions) == 1
+  assert actor.conditions['be'] == be
+
+
+def test_initial_actor_knows_interactions():
+  actor = Actor(do_it)
+  assert len(actor.interactions) == 1
+  assert actor.interactions['do_it'] == do_it
+
+
+def test_initial_actor_knows_sayings():
+  actor = Actor(try_things)
+  assert len(actor.sayings) == 1
+  assert actor.sayings['try_things'] == try_things
+
+
+def test_initial_actor_knows_multiples():
+  actor = Actor(be_cool, go_super_saiyan, be, contain, do_it, whip_it_good, try_things, shout)
+  assert_all_functions(actor)
+
+
+def test_initial_actor_knows_module(actor):
+  actor = Actor(sys.modules[__name__])
+  assert_all_functions(actor)
+
+
+def test_initial_actor_knows_another_actor(actor):
+  other = Actor()
+  other.knows(be_cool, go_super_saiyan, be, contain, do_it, whip_it_good, try_things, shout)
+  actor = Actor(other)
+  assert_all_functions(actor)
