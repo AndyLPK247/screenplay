@@ -9,7 +9,7 @@ This module contains unit tests for wait interactions.
 import pytest
 import time
 
-from screenplay.actor.actor import Actor
+from screenplay.actor.actor import Actor, UnknownSayingError
 from screenplay.pattern import *
 from screenplay.wait import *
 
@@ -26,7 +26,7 @@ def actor():
 
   # Construct the actor
   a = Actor()
-  a.knows(wait, wait_on_question)
+  a.knows(call_interaction, wait, wait_on_question)
   return a
 
 
@@ -36,10 +36,18 @@ def actor():
 
 COUNTER = 0
 
+
 @question
 def counter():
   global COUNTER
   COUNTER += 1
+  return COUNTER
+
+
+@question
+def multi_counter(inc=2):
+  global COUNTER
+  COUNTER += inc
   return COUNTER
 
 
@@ -105,6 +113,8 @@ def test_to_function_with_success_after_waiting(actor, mocker):
   on_actor = on(wait_actor, counter)
   to(on_actor, be, value=10)
   time.sleep.assert_called_with(0)
+  global COUNTER
+  assert COUNTER == 10
 
 
 def test_to_function_with_failure_after_waiting(actor):
@@ -127,47 +137,143 @@ def test_to_function_with_non_condition(actor):
 # Tests for Wait Interaction Chains
 # ------------------------------------------------------------------------------
 
-# def test_actor_call_wait_chain_with_args(actor):
-#   # Expect no timeout exception
-#   actor.call(wait, timeout=0.01, interval=0).on(question=counter).to(condition=be, value=5)
+def test_actor_call_wait_chain_with_args(actor, mocker):
+  mocker.patch('time.sleep')
+  actor.call(wait, timeout=0.01, interval=0).on(question=counter).to(condition=be, value=5)
+  time.sleep.assert_called_with(0)
+  global COUNTER
+  assert COUNTER == 5
 
 
-# def test_actor_call_wait_chain_with_traits(actor):
-#   # Expect no timeout exception
-#   actor.knows(timeout=0.01, interval=0, value=5)
-#   actor.call(wait).on(counter).to(be)
+def test_actor_call_wait_chain_with_traits(actor, mocker):
+  mocker.patch('time.sleep')
+  actor.knows(timeout=0.01, interval=0, value=5)
+  actor.call(wait).on(question=counter).to(condition=be)
+  time.sleep.assert_called_with(0)
+  global COUNTER
+  assert COUNTER == 5
 
 
-# chain: actor.call(wait, timeout=30, interval=1).on(question, **).to(condition, **)
-# chain: actor.call(wait, timeout=30, interval=1).on(question).to(condition)
-# chain: actor.wait(timeout=30, interval=1).on(question).to(question)
-# chain: actor.wait().on(question).to(question) with traits
-# chain: actor.wait().on(question).to(question) with without traits
+def test_actor_wait_chain_with_args_and_traits(actor, mocker):
+  mocker.patch('time.sleep')
+  actor.knows(timeout=0.01, interval=0)
+  actor.wait().on(question=counter, inc=5).to(condition=be, value=10)
+  time.sleep.assert_called_with(0)
+  global COUNTER
+  assert COUNTER == 10
 
 
+def test_actor_wait_chain_with_failure(actor):
+  with pytest.raises(WaitTimeoutError):
+    actor.knows(timeout=0.01, interval=0)
+    actor.wait().on(question=always_one).to(condition=be, value=2)
+
+
+# ------------------------------------------------------------------------------
 # Test Pythonic Wait Interactions
+# ------------------------------------------------------------------------------
 
-# on_question: success without parameters
-# on_question: success with args only
-# on_question: success with args and traits
-# on_question: success with extra args
-# on_question: DNE
-# wait_on_question: success
-# wait_on_question: DNE
-# to_condition: success without parameters
-# to_condition: success with args only
-# to_condition: success with args and traits
-# to_condition: success with extra args
-# to_condition: DNE
-
-# actor.wait().on_question().to_condition()
-# actor.wait_on_question().to_condition()
-# actor.wait_on_something(locator=SOME_ELEMENT).to_be(value=789)
+def test_actor_on_question_success_without_parameters(actor, mocker):
+  mocker.patch('time.sleep')
+  actor.knows(counter, timeout=0.01, interval=0)
+  actor.wait().on_counter().to(condition=be, value=5)
+  time.sleep.assert_called_with(0)
+  global COUNTER
+  assert COUNTER == 5
 
 
-# Future Tests?
+def test_actor_on_question_success_with_parameters(actor, mocker):
+  mocker.patch('time.sleep')
+  actor.knows(multi_counter, timeout=0.01, interval=0)
+  actor.wait().on_multi_counter(inc=5).to(condition=be, value=10)
+  time.sleep.assert_called_with(0)
+  global COUNTER
+  assert COUNTER == 10
 
-# actor.wait_on_something(locator=SOME_ELEMENT).to_be(789)
-# actor.wait_on_something(locator=SOME_ELEMENT).to_match("regex")
-# actor.wait_on_something(locator=SOME_ELEMENT).to_contain_substring("substring")
-# actor.wait_on_something(locator=SOME_ELEMENT).to_contain("a", "b", "c")
+
+def test_actor_on_question_success_with_traits(actor, mocker):
+  mocker.patch('time.sleep')
+  actor.knows(multi_counter, timeout=0.01, interval=0, inc=5, value=10)
+  actor.wait().on_multi_counter().to(condition=be)
+  time.sleep.assert_called_with(0)
+  global COUNTER
+  assert COUNTER == 10
+
+
+def test_actor_on_question_success_with_extra_args(actor, mocker):
+  mocker.patch('time.sleep')
+  actor.knows(multi_counter, timeout=0.01, interval=0)
+  actor.wait().on_multi_counter(inc=5, garbage="yup").to(condition=be, value=10)
+  time.sleep.assert_called_with(0)
+  global COUNTER
+  assert COUNTER == 10
+
+
+def test_actor_on_question_failure(actor):
+  with pytest.raises(WaitTimeoutError):
+    actor.knows(always_one, timeout=0.01, interval=0)
+    actor.wait().on_always_one().to(condition=be, value=2)
+
+
+def test_actor_on_question_dne(actor):
+  with pytest.raises(UnknownSayingError):
+    actor.wait(timeout=0.01, interval=0).on_counter()
+
+
+# ------------------------------------------------------------------------------
+# Test Pythonic Wait-On-Question Interactions
+# ------------------------------------------------------------------------------
+
+def test_actor_wait_on_question_success(actor, mocker):
+  mocker.patch('time.sleep')
+  actor.knows(multi_counter, timeout=0.01, interval=0)
+  actor.wait_on_multi_counter(inc=5).to(condition=be, value=10)
+  time.sleep.assert_called_with(0)
+  global COUNTER
+  assert COUNTER == 10
+
+
+def test_actor_wait_on_question_failure(actor):
+  with pytest.raises(WaitTimeoutError):
+    actor.knows(always_one, timeout=0.01, interval=0)
+    actor.wait_on_always_one().to(condition=be, value=2)
+
+
+def test_actor_wait_on_question_dne(actor):
+  with pytest.raises(UnknownSayingError):
+    actor.knows(timeout=0.01, interval=0)
+    actor.wait_on_counter()
+
+
+# ------------------------------------------------------------------------------
+# Test Pythonic Wait-On-Question-To-Condition Interactions
+# ------------------------------------------------------------------------------
+
+def test_actor_wait_on_question_to_condition_success(actor, mocker):
+  mocker.patch('time.sleep')
+  actor.knows(multi_counter, be, timeout=0.01, interval=0)
+  actor.wait_on_multi_counter(inc=5).to_be(value=10)
+  time.sleep.assert_called_with(0)
+  global COUNTER
+  assert COUNTER == 10
+
+
+def test_actor_wait_on_question_to_condition_success_with_traits(actor, mocker):
+  mocker.patch('time.sleep')
+  actor.knows(multi_counter, be, timeout=0.01, interval=0, inc=5, value=10)
+  actor.wait_on_multi_counter().to_be()
+  time.sleep.assert_called_with(0)
+  global COUNTER
+  assert COUNTER == 10
+
+
+def test_actor_wait_on_question_to_condition_failure(actor):
+  with pytest.raises(WaitTimeoutError):
+    actor.knows(always_one, be, timeout=0.01, interval=0)
+    actor.wait_on_always_one().to_be(value=2)
+
+
+def test_actor_wait_on_question_to_condition_dne(actor):
+  with pytest.raises(UnknownSayingError):
+    actor.knows(counter, timeout=0.01, interval=0)
+    actor.wait_on_counter().to_be(value=2)

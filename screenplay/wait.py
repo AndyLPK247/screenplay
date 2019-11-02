@@ -74,7 +74,7 @@ def on_question(actor, name):
 @saying
 def wait_on_question(actor, name):
   if name.startswith('wait_on_'):
-    wait_actor = wait(actor)
+    wait_actor = actor.wait()
     on_name = name[5:]
     return on_question(wait_actor, on_name)
 

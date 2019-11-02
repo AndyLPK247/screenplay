@@ -4,6 +4,7 @@ Actor is the main "actor" in the Screenplay pattern.
 Pattern functions (like interactions) are in other modules.
 """
 
+# TODO: first argument in a call chain?
 # TODO: *args for callables?
 # TODO: class for fluent extensions?
 
