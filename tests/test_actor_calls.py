@@ -11,7 +11,7 @@ import sys
 
 from screenplay.core.actor import Actor
 from screenplay.core.exceptions import MissingParametersError, UnknownSayingError
-from screenplay.core.interactions import *
+from screenplay.core.interactions import interaction, condition, question, task, NotInteractionError
 
 
 # ------------------------------------------------------------------------------
@@ -25,17 +25,12 @@ def actor():
 
 
 # ------------------------------------------------------------------------------
-# Pattern Functions
+# Interaction Functions
 # ------------------------------------------------------------------------------
 
-@condition
-def be(actual, value):
-  return actual == value
-
-
-@condition
-def assume_bool(a=1, b=1):
-  return a == b
+@interaction
+def do_nothing():
+  return True
 
 
 @interaction
@@ -43,30 +38,24 @@ def do_it(task, speed):
   return f"{task} at {speed} speed"
 
 
-@interaction
-def whip_it_good():
+@condition
+def equal(actual, value):
+  return actual == value
+
+
+@question
+def always_true():
   return True
 
 
-@interaction
-def assume_things(a=1, b=2):
+@question
+def add_things(a=1, b=2):
   return a + b
 
 
-@saying
-def try_things(actor, name):
-  if len(name) > 1:
-    def try_it():
-      return f"tried {name}"
-    return try_it
-
-
-@saying
-def shout(actor, name):
-  if name == "shout":
-    def out_loud(words):
-      return words.upper()
-    return out_loud
+@task
+def whip_it_good():
+  pass
 
 
 def noop():
@@ -78,7 +67,7 @@ def noop():
 # ------------------------------------------------------------------------------
 
 def test_actor_calls_interaction_without_parameters(actor):
-  response = actor.call(whip_it_good)
+  response = actor.call(do_nothing)
   assert response
 
 
@@ -117,12 +106,12 @@ def test_actor_calls_interaction_with_unnecessary_traits_that_are_ignored(actor)
 
 
 def test_actor_calls_interaction_with_default_parameters(actor):
-  response = actor.call(assume_things)
+  response = actor.call(add_things)
   assert response == 3
 
 
 def test_actor_calls_interaction_with_args_and_default_parameters(actor):
-  response = actor.call(assume_things, b=9)
+  response = actor.call(add_things, b=9)
   assert response == 10
 
 
@@ -174,112 +163,119 @@ def test_actor_calls_a_non_interaction(actor):
 
 
 # ------------------------------------------------------------------------------
-# Tests for Checking Conditions
+# Tests for Calling Interactions with Sayings
 # ------------------------------------------------------------------------------
 
-def test_actor_checks_condition_without_parameters_to_be_true(actor):
-  @condition
-  def always_true():
-    return True
-  
-  response = actor.check(always_true)
-  assert response == True
+def test_actor_calls_interaction_by_name_without_parameters(actor):
+  actor.knows(do_nothing)
+  response = actor.do_nothing()
+  assert response
 
 
-def test_actor_checks_condition_without_parameters_to_be_false(actor):
-  @condition
-  def always_false():
-    return False
-  
-  response = actor.check(always_false)
-  assert response == False
+def test_actor_calls_interaction_by_name_with_args_and_without_traits(actor):
+  actor.knows(do_it)
+  response = actor.do_it(task="program", speed="lightning")
+  assert response == "program at lightning speed"
 
 
-def test_actor_checks_condition_with_args_and_without_traits(actor):
-  response = actor.check(be, actual=4, value=4)
-  assert response == True
+def test_actor_calls_interaction_by_name_without_args_and_with_traits(actor):
+  actor.knows(do_it, task="program", speed="lightning")
+  response = actor.do_it()
+  assert response == "program at lightning speed"
 
 
-def test_actor_checks_condition_without_args_and_with_traits(actor):
-  actor.knows(actual="hi", value="hi")
-  response = actor.check(be)
-  assert response == True
+def test_actor_calls_interaction_by_name_with_both_args_and_traits(actor):
+  actor.knows(do_it, task="program")
+  response = actor.do_it(speed="lightning")
+  assert response == "program at lightning speed"
 
 
-def test_actor_checks_condition_with_both_args_and_traits(actor):
-  actor.knows(actual="hi")
-  response = actor.check(be, value="hi")
-  assert response == True
+def test_actor_calls_interaction_by_name_with_args_that_override_traits(actor):
+  actor.knows(do_it, task="program", speed="lightning")
+  response = actor.do_it(task="drive")
+  assert response == "drive at lightning speed"
 
 
-def test_actor_checks_condition_with_args_that_override_traits(actor):
-  actor.knows(actual=99, value=99)
-  response = actor.check(be, value=2)
-  assert response == False
+def test_actor_calls_interaction_by_name_with_unnecessary_args_that_are_ignored(actor):
+  actor.knows(do_it)
+  response = actor.do_it(task="program", speed="lightning", garbage=True)
+  assert response == "program at lightning speed"
 
 
-def test_actor_checks_condition_with_unnecessary_args_that_are_ignored(actor):
-  response = actor.check(be, actual=4, value=4, garbage="bo-ha-ha")
-  assert response == True
+def test_actor_calls_interaction_by_name_with_unnecessary_traits_that_are_ignored(actor):
+  actor.knows(do_it, garbage=True)
+  response = actor.do_it(task="program", speed="lightning")
+  assert response == "program at lightning speed"
 
 
-def test_actor_checks_condition_with_unnecessary_traits_that_are_ignored(actor):
-  actor.knows(actual=99, value=99, garbage="stuff")
-  response = actor.check(be)
-  assert response == True
+def test_actor_calls_interaction_by_call_without_parameters(actor):
+  actor.knows(do_nothing)
+  response = actor.call_do_nothing()
+  assert response
 
 
-def test_actor_checks_condition_with_default_parameters(actor):
-  response = actor.check(assume_bool)
-  assert response == True
+def test_actor_calls_interaction_by_call_with_args_and_without_traits(actor):
+  actor.knows(do_it)
+  response = actor.call_do_it(task="program", speed="lightning")
+  assert response == "program at lightning speed"
 
 
-def test_actor_checks_condition_with_args_and_default_parameters(actor):
-  response = actor.check(assume_bool, b=2)
-  assert response == False
+def test_actor_calls_interaction_by_call_without_args_and_with_traits(actor):
+  actor.knows(do_it, task="program", speed="lightning")
+  response = actor.call_do_it()
+  assert response == "program at lightning speed"
 
 
-def test_actor_checks_condition_with_missing_parameters(actor):
-  with pytest.raises(MissingParametersError):
-    actor.check(be)
+def test_actor_calls_interaction_by_call_with_both_args_and_traits(actor):
+  actor.knows(do_it, task="program")
+  response = actor.call_do_it(speed="lightning")
+  assert response == "program at lightning speed"
 
 
-def test_actor_checks_condition_with_an_actor_parameter(actor):
-  @condition
-  def has_actor(actor):
-    return actor is not None
-  
-  response = actor.check(has_actor)
-  assert response == True
+def test_actor_calls_interaction_by_call_with_args_that_override_traits(actor):
+  actor.knows(do_it, task="program", speed="lightning")
+  response = actor.call_do_it(task="drive")
+  assert response == "drive at lightning speed"
 
 
-def test_actor_checks_a_non_condition(actor):
-  with pytest.raises(NotConditionError):
-    actor.check(noop)
+def test_actor_calls_interaction_by_call_with_unnecessary_args_that_are_ignored(actor):
+  actor.knows(do_it)
+  response = actor.call_do_it(task="program", speed="lightning", garbage=True)
+  assert response == "program at lightning speed"
+
+
+def test_actor_calls_interaction_by_call_with_unnecessary_traits_that_are_ignored(actor):
+  actor.knows(do_it, garbage=True)
+  response = actor.call_do_it(task="program", speed="lightning")
+  assert response == "program at lightning speed"
 
 
 # ------------------------------------------------------------------------------
-# Tests for Calling Sayings
+# Tests for Calling Other Interaction Types with Sayings
 # ------------------------------------------------------------------------------
 
-def test_actor_getattr_matches_saying(actor):
-  actor.knows(shout)
-  response = actor.shout("yay")
-  assert response == "YAY"
+@pytest.mark.parametrize(
+  "callname",
+  ["equal", "call_equal", "check_equal", "asks_for_equal"])
+def test_actor_calls_condition_by_saying(actor, callname):
+  actor.knows(equal)
+  response = getattr(actor, callname)(actual="a", value="b")
+  assert not response
 
 
-def test_actor_getattr_matches_first_of_multiple_sayings(actor):
-  actor.knows(shout, try_things)
-  response = actor.shout("yay")
-  assert response == "YAY"
+@pytest.mark.parametrize(
+  "callname",
+  ["add_things", "call_add_things", "get_add_things", "asks_for_add_things"])
+def test_actor_calls_question_by_saying(actor, callname):
+  actor.knows(add_things)
+  response = getattr(actor, callname)(a=5, b=9)
+  assert response == 14
 
 
-def test_actor_getattr_does_not_match_saying(actor):
-  actor.knows(shout, try_things)
-  with pytest.raises(UnknownSayingError):
-    actor.a("stuff")
-
-
-def test_actor_getattr_does_not_have_sayings(actor):
-  with pytest.raises(UnknownSayingError):
-    actor.shout("yay")
+@pytest.mark.parametrize(
+  "callname",
+  ["whip_it_good", "call_whip_it_good", "do_whip_it_good", "attempts_to_whip_it_good"])
+def test_actor_calls_task_by_saying(actor, callname):
+  actor.knows(whip_it_good)
+  response = getattr(actor, callname)()
+  assert response is None
