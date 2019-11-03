@@ -9,7 +9,7 @@ As a best practice, only use builders to initialize Actor instances.
 # ------------------------------------------------------------------------------
 
 from screenplay.core.actor import Actor
-from screenplay.core.sayings import call_ability, ask_question, call_interaction, traditional_screenplay
+from screenplay.core.sayings import ask_question, call_interaction, traditional_screenplay
 
 
 # ------------------------------------------------------------------------------
@@ -17,4 +17,4 @@ from screenplay.core.sayings import call_ability, ask_question, call_interaction
 # ------------------------------------------------------------------------------
 
 def init_actor():
-  return Actor(call_ability, ask_question, call_interaction, traditional_screenplay)
+  return Actor(ask_question, call_interaction, traditional_screenplay)

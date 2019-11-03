@@ -28,16 +28,6 @@ def actor():
 # Pattern Functions
 # ------------------------------------------------------------------------------
 
-@ability
-def be_cool():
-  return {'cool': True}
-
-
-@ability
-def go_super_saiyan(extra):
-  return {'hair': 'blonde', 'power': 9001, 'extra': extra}
-
-
 @condition
 def be(actual, value):
   return actual == value
@@ -81,29 +71,6 @@ def shout(actor, name):
 
 def noop():
   pass
-
-
-# ------------------------------------------------------------------------------
-# Tests for Having Abilities
-# ------------------------------------------------------------------------------
-
-def test_actor_can_do_ability_without_args(actor):
-  actor.can(be_cool)
-  assert len(actor.traits) == 1
-  assert actor.traits['cool'] == True
-
-
-def test_actor_can_do_ability_with_args(actor):
-  actor.can(go_super_saiyan, extra='yes')
-  assert len(actor.traits) == 3
-  assert actor.traits['hair'] == 'blonde'
-  assert actor.traits['power'] == 9001
-  assert actor.traits['extra'] == 'yes'
-
-
-def test_actor_cannot_do_non_ability(actor):
-  with pytest.raises(NotAbilityError):
-    actor.can(noop)
 
 
 # ------------------------------------------------------------------------------

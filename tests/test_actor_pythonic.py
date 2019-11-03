@@ -27,16 +27,6 @@ def pythonic_actor():
 # Pattern Functions
 # ------------------------------------------------------------------------------
 
-@ability
-def be_cool():
-  return {'cool': True}
-
-
-@ability
-def go_super_saiyan(extra):
-  return {'hair': 'blonde', 'power': 9001, 'extra': extra}
-
-
 @interaction
 def do_it(task, speed):
   return f"{task} at {speed} speed"
@@ -54,37 +44,6 @@ def assume_things(a=1, b=2):
 
 def noop():
   pass
-
-
-# ------------------------------------------------------------------------------
-# Tests for Calling Abilities via "can_" Sayings
-# ------------------------------------------------------------------------------
-
-def test_actor_can_do_ability_without_args_via_saying(pythonic_actor):
-  pythonic_actor.knows(be_cool)
-  pythonic_actor.can_be_cool()
-  assert len(pythonic_actor.traits) == 1
-  assert pythonic_actor.traits['cool'] == True
-
-
-def test_actor_can_do_ability_with_args_via_saying(pythonic_actor):
-  pythonic_actor.knows(go_super_saiyan)
-  pythonic_actor.can_go_super_saiyan(extra='yes')
-  assert len(pythonic_actor.traits) == 3
-  assert pythonic_actor.traits['hair'] == 'blonde'
-  assert pythonic_actor.traits['power'] == 9001
-  assert pythonic_actor.traits['extra'] == 'yes'
-
-
-def test_actor_cannot_do_unknown_ability_via_saying(pythonic_actor):
-  pythonic_actor.knows(go_super_saiyan)
-  with pytest.raises(UnknownSayingError):
-    pythonic_actor.can_be_cool()
-
-
-def test_actor_cannot_do_non_ability_via_saying(pythonic_actor):
-  with pytest.raises(UnknownSayingError):
-    pythonic_actor.can_noop()
 
 
 # ------------------------------------------------------------------------------

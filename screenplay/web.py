@@ -7,7 +7,7 @@ It uses Selenium WebDriver.
 # Imports
 # ------------------------------------------------------------------------------
 
-from screenplay.core.pattern import ability, question, task
+from screenplay.core.pattern import question, task
 from screenplay.core.wait import wait
 
 
@@ -23,15 +23,6 @@ class Locator:
 
   def __str__(self):
     return f'{self.name} ({self.by}: {self.query})'
-
-
-# ------------------------------------------------------------------------------
-# Abilities
-# ------------------------------------------------------------------------------
-
-@ability
-def browse_the_web(browser, timeout):
-  return {'browser': browser, 'timeout': timeout}
 
 
 # ------------------------------------------------------------------------------

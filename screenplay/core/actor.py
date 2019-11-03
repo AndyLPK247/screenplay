@@ -4,10 +4,6 @@ Actor is the main "actor" in the Screenplay pattern.
 Pattern functions (like interactions) are in other modules.
 """
 
-# TODO: first argument in a call chain?
-# TODO: *args for callables?
-# TODO: class for fluent extensions?
-
 # ------------------------------------------------------------------------------
 # Imports
 # ------------------------------------------------------------------------------
@@ -26,16 +22,16 @@ from screenplay.core.pattern import *
 
 class Actor:
   def __init__(self, *args, **kwargs):
-    self._abilities = OrderedDict()
     self._conditions = OrderedDict()
     self._interactions = OrderedDict()
     self._sayings = OrderedDict()
     self._traits = OrderedDict()
 
+    # self._new_sayings = OrderedDict()
+
     self.knows(*args, **kwargs)
 
   def _add_actor_context(self, actor):
-    self._abilities.update(actor.abilities)
     self._conditions.update(actor.conditions)
     self._interactions.update(actor.interactions)
     self._sayings.update(actor.sayings)
@@ -43,7 +39,6 @@ class Actor:
   
   def _add_module_members(self, module):
     members = inspect.getmembers(module)
-    self._get_members(members, is_ability, self._abilities)
     self._get_members(members, is_condition, self._conditions)
     self._get_members(members, is_interaction, self._interactions)
     self._get_members(members, is_saying, self._sayings)
@@ -82,16 +77,16 @@ class Actor:
         target[name] = f
 
   @property
-  def abilities(self):
-    return self._abilities
-
-  @property
   def conditions(self):
     return self._conditions
 
   @property
   def interactions(self):
     return self._interactions
+
+  # @property
+  # def new_sayings(self):
+  #   return self._new_sayings
 
   @property
   def sayings(self):
@@ -106,11 +101,6 @@ class Actor:
     applicable_args = self._get_args(interaction, kwargs)
     return interaction(**applicable_args)
 
-  def can(self, ability, **kwargs):
-    validate_ability(ability)
-    traits = ability(**kwargs)
-    self._traits.update(traits)
-
   def check(self, condition, **kwargs):
     validate_condition(condition)
     applicable_args = self._get_args(condition, kwargs)
@@ -124,18 +114,22 @@ class Actor:
         self._add_module_members(arg)
       elif isinstance(arg, Actor):
         self._add_actor_context(arg)
-      elif is_ability(arg):
-        self._abilities[arg.__name__] = arg
       elif is_condition(arg):
         self._conditions[arg.__name__] = arg
       elif is_interaction(arg):
         self._interactions[arg.__name__] = arg
+        # if arg.saying:
+        #   self._new_sayings[arg.saying] = arg
       elif is_saying(arg):
         self._sayings[arg.__name__] = arg
       else:
         raise UnknowableArgumentError(arg)
 
   def __getattr__(self, attr):
+    # if attr in self._new_sayings:
+    #   return functools.partial(self.call, self._new_sayings[attr])
+    # else:
+    #   raise UnknownSayingError(attr)
     for name, saying in self._sayings.items():
       call = saying(self, attr)
       if call is not None:

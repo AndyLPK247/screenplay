@@ -9,24 +9,18 @@ These decorators enable regular functions to be used as Screenplay functions.
 
 def _screenplay_decorator(
   func,
-  ability=False,
   condition=False,
   interaction=False,
   task=False,
   question=False,
   saying=False):
 
-  func.is_ability = ability
   func.is_condition = condition
   func.is_interaction = interaction
   func.is_task = task
   func.is_question = question
   func.is_saying = saying
   return func
-
-
-def ability(func):
-  return _screenplay_decorator(func, ability=True)
 
 
 def condition(func):
@@ -57,10 +51,6 @@ def _is_screenplay_func(func, attr):
   return callable(func) and hasattr(func, attr) and getattr(func, attr)
 
 
-def is_ability(func):
-  return _is_screenplay_func(func, 'is_ability')
-
-
 def is_condition(func):
   return _is_screenplay_func(func, 'is_condition')
 
@@ -89,11 +79,6 @@ class NotScreenplayFunctionError(Exception):
   def __init__(self, func, functype):
     super().__init__(f'"{func.__name__}" is not {functype}')
     self.func = func
-
-
-class NotAbilityError(NotScreenplayFunctionError):
-  def __init__(self, func):
-    super().__init__(func, 'an ability')
 
 
 class NotConditionError(NotScreenplayFunctionError):
@@ -128,10 +113,6 @@ class NotSayingError(NotScreenplayFunctionError):
 def _validate_screenplay_func(func, predicate, exception):
     if not predicate(func):
       raise exception(func)
-
-
-def validate_ability(ability):
-  _validate_screenplay_func(ability, is_ability, NotAbilityError)
 
 
 def validate_condition(condition):

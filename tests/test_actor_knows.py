@@ -29,16 +29,6 @@ def actor():
 # Pattern Functions
 # ------------------------------------------------------------------------------
 
-@ability
-def be_cool():
-  return {'cool': True}
-
-
-@ability
-def go_super_saiyan(extra):
-  return {'hair': 'blonde', 'power': 9001, 'extra': extra}
-
-
 @condition
 def be(actual, value):
   return actual == value
@@ -79,12 +69,6 @@ def shout(actor, name):
 # Pattern Assertion Functions
 # ------------------------------------------------------------------------------
 
-def assert_abilities(actor):
-  assert len(actor.abilities) == 2
-  assert actor.abilities['be_cool'] == be_cool
-  assert actor.abilities['go_super_saiyan'] == go_super_saiyan
-
-
 def assert_conditions(actor):
   assert len(actor.conditions) == 2
   assert actor.conditions['be'] == be
@@ -104,7 +88,6 @@ def assert_sayings(actor):
 
 
 def assert_all_functions(actor):
-  assert_abilities(actor)
   assert_conditions(actor)
   assert_interactions(actor)
   assert_sayings(actor)
@@ -116,7 +99,7 @@ def assert_all_functions(actor):
 
 @pytest.mark.parametrize(
   "attr",
-  ['abilities', 'conditions', 'interactions', 'sayings', 'traits'])
+  ['conditions', 'interactions', 'sayings', 'traits'])
 def test_initial_actor_is_empty(actor, attr):
   attr_dict = getattr(actor, attr)
   assert isinstance(attr_dict, OrderedDict)
@@ -169,38 +152,6 @@ def test_actor_knows_traits_being_overridden(actor):
   actor.knows(a=1, b=2, c=3)
   actor.knows(b=99)
   assert actor.traits['b'] == 99
-
-
-# ------------------------------------------------------------------------------
-# Tests for Knowing Abilities
-# ------------------------------------------------------------------------------
-
-def test_actor_knows_an_ability(actor):
-  actor.knows(be_cool)
-  assert len(actor.abilities) == 1
-  assert actor.abilities['be_cool'] == be_cool
-
-
-def test_actor_knows_multiple_abilities_with_one_call_each(actor):
-  actor.knows(be_cool)
-  actor.knows(go_super_saiyan)
-  assert_abilities(actor)
-
-
-def test_actor_knows_multiple_abilities_with_one_call_for_all(actor):
-  actor.knows(be_cool, go_super_saiyan)
-  assert_abilities(actor)
-
-
-def test_actor_knows_abilities_in_order(actor):
-  actor.knows(go_super_saiyan, be_cool)
-  assert list(actor.abilities.keys()) == ['go_super_saiyan', 'be_cool']
-
-
-def test_actor_knows_a_duplicate_ability(actor):
-  actor.knows(be_cool, go_super_saiyan)
-  actor.knows(be_cool)
-  assert_abilities(actor)
 
 
 # ------------------------------------------------------------------------------
@@ -324,7 +275,7 @@ def test_actor_knows_a_duplicate_saying(actor):
 # ------------------------------------------------------------------------------
 
 def test_actor_knows_multiple_types_with_one_call(actor):
-  actor.knows(be_cool, go_super_saiyan, be, contain, do_it, whip_it_good, try_things, shout)
+  actor.knows(be, contain, do_it, whip_it_good, try_things, shout)
   assert_all_functions(actor)
 
 
@@ -343,7 +294,7 @@ def test_actor_knows_module(actor):
 
 def test_actor_knows_another_actor(actor):
   other = Actor()
-  other.knows(be_cool, go_super_saiyan, be, contain, do_it, whip_it_good, try_things, shout)
+  other.knows(be, contain, do_it, whip_it_good, try_things, shout)
   actor.knows(other)
   assert_all_functions(actor)
 
@@ -395,12 +346,6 @@ def test_initial_actor_knows_traits():
   assert actor.traits['b'] == 2
 
 
-def test_initial_actor_knows_abilities():
-  actor = Actor(be_cool)
-  assert len(actor.abilities) == 1
-  assert actor.abilities['be_cool'] == be_cool
-
-
 def test_initial_actor_knows_conditions():
   actor = Actor(be)
   assert len(actor.conditions) == 1
@@ -420,7 +365,7 @@ def test_initial_actor_knows_sayings():
 
 
 def test_initial_actor_knows_multiples():
-  actor = Actor(be_cool, go_super_saiyan, be, contain, do_it, whip_it_good, try_things, shout)
+  actor = Actor(be, contain, do_it, whip_it_good, try_things, shout)
   assert_all_functions(actor)
 
 
@@ -431,6 +376,6 @@ def test_initial_actor_knows_module(actor):
 
 def test_initial_actor_knows_another_actor(actor):
   other = Actor()
-  other.knows(be_cool, go_super_saiyan, be, contain, do_it, whip_it_good, try_things, shout)
+  other.knows(be, contain, do_it, whip_it_good, try_things, shout)
   actor = Actor(other)
   assert_all_functions(actor)
