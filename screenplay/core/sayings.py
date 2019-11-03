@@ -17,15 +17,6 @@ from screenplay.core.pattern import *
 # ------------------------------------------------------------------------------
 
 @saying
-def call_ability(actor, name):
-  if name.startswith('can_'):
-    ability_name = name[4:]
-    if ability_name in actor.abilities:
-      ability = actor.abilities[ability_name]
-      return functools.partial(actor.can, ability)
-
-
-@saying
 def ask_question(actor, name):
   if name.startswith('get_'):
     question_name = name[4:]
