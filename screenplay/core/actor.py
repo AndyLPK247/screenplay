@@ -13,7 +13,7 @@ import inspect
 
 from collections import OrderedDict
 from screenplay.core.exceptions import *
-from screenplay.core.pattern import *
+from screenplay.core.pattern import is_interaction, validate_interaction
 
 
 # ------------------------------------------------------------------------------
