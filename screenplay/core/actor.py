@@ -1,7 +1,7 @@
 """
 This module contains the base Actor class.
 Actor is the main "actor" in the Screenplay pattern.
-Pattern functions (like interactions) are in other modules.
+Interaction functions are in other modules.
 """
 
 # ------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ import inspect
 
 from collections import OrderedDict
 from screenplay.core.exceptions import *
-from screenplay.core.pattern import is_interaction, validate_interaction
+from screenplay.core.interactions import is_interaction, validate_interaction
 
 
 # ------------------------------------------------------------------------------

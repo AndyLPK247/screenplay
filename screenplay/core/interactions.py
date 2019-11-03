@@ -3,8 +3,7 @@ This module contains decorators, functions, and exceptions for the Screenplay pa
 These decorators enable regular functions to be used as Screenplay functions.
 """
 
-# TODO: rename this to be decorators or interactions?
-# TODO: saying decorator for customizable sayings?
+# TODO: add saying decorator for customizable sayings?
 
 # ------------------------------------------------------------------------------
 # Interaction Decorators

@@ -12,7 +12,7 @@ import sys
 from collections import OrderedDict
 from screenplay.core.actor import Actor
 from screenplay.core.exceptions import DuplicateSayingError, UnknowableArgumentError
-from screenplay.core.pattern import interaction, condition, question, task
+from screenplay.core.interactions import interaction, condition, question, task
 
 
 # ------------------------------------------------------------------------------

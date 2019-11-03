@@ -10,7 +10,7 @@ import pytest
 
 from screenplay.core.builders import init_actor
 from screenplay.core.exceptions import MissingParametersError, UnknownSayingError
-from screenplay.core.pattern import *
+from screenplay.core.interactions import *
 
 
 # ------------------------------------------------------------------------------

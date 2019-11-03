@@ -10,7 +10,7 @@ import pytest
 import time
 
 from screenplay.core.actor import Actor, UnknownSayingError
-from screenplay.core.pattern import *
+from screenplay.core.interactions import *
 from screenplay.core.wait import *
 
 

@@ -11,7 +11,7 @@ import sys
 
 from screenplay.core.actor import Actor
 from screenplay.core.exceptions import MissingParametersError, UnknownSayingError
-from screenplay.core.pattern import *
+from screenplay.core.interactions import *
 
 
 # ------------------------------------------------------------------------------

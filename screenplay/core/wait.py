@@ -12,7 +12,7 @@ import time
 
 from screenplay.core.actor import Actor
 from screenplay.core.sayings import call_interaction
-from screenplay.core.pattern import *
+from screenplay.core.interactions import *
 
 
 # ------------------------------------------------------------------------------

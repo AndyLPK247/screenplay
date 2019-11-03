@@ -7,8 +7,7 @@ It uses Selenium WebDriver.
 # Imports
 # ------------------------------------------------------------------------------
 
-from screenplay.core.pattern import question, task
-from screenplay.core.wait import wait
+from screenplay.core.interactions import question, task
 
 
 # ------------------------------------------------------------------------------
