@@ -58,6 +58,11 @@ def whip_it_good():
   pass
 
 
+@interaction
+def get_actor(actor):
+  return actor
+
+
 def noop():
   pass
 
@@ -121,10 +126,6 @@ def test_actor_calls_interaction_with_missing_parameters(actor):
 
 
 def test_actor_calls_interaction_with_an_actor_parameter(actor):
-  @interaction
-  def get_actor(actor):
-    return actor
-  
   response = actor.call(get_actor)
   assert response == actor
 
@@ -208,51 +209,57 @@ def test_actor_calls_interaction_by_name_with_unnecessary_traits_that_are_ignore
   assert response == "program at lightning speed"
 
 
-def test_actor_calls_interaction_by_call_without_parameters(actor):
-  actor.knows(do_nothing)
-  response = actor.call_do_nothing()
-  assert response
-
-
-def test_actor_calls_interaction_by_call_with_args_and_without_traits(actor):
+def test_actor_calls_interaction_by_name_with_missing_parameters(actor):
   actor.knows(do_it)
-  response = actor.call_do_it(task="program", speed="lightning")
-  assert response == "program at lightning speed"
+  with pytest.raises(MissingParametersError):
+    actor.do_it()
 
 
-def test_actor_calls_interaction_by_call_without_args_and_with_traits(actor):
-  actor.knows(do_it, task="program", speed="lightning")
-  response = actor.call_do_it()
-  assert response == "program at lightning speed"
+def test_actor_calls_interaction_by_name_with_an_actor_parameter(actor):
+  actor.knows(get_actor)
+  response = actor.get_actor()
+  assert response == actor
 
 
-def test_actor_calls_interaction_by_call_with_both_args_and_traits(actor):
-  actor.knows(do_it, task="program")
-  response = actor.call_do_it(speed="lightning")
-  assert response == "program at lightning speed"
+def test_actor_calls_interaction_by_name_with_variable_keyword_args(actor):
+  @interaction
+  def add_stuff(**kwargs):
+    return kwargs['a'] + kwargs['b'] + kwargs['c']
+
+  actor.knows(add_stuff)
+  result = actor.add_stuff(a=1, b=2, c=3)
+  assert result == 6
 
 
-def test_actor_calls_interaction_by_call_with_args_that_override_traits(actor):
-  actor.knows(do_it, task="program", speed="lightning")
-  response = actor.call_do_it(task="drive")
-  assert response == "drive at lightning speed"
+def test_actor_calls_interaction_by_name_with_positional_and_variable_keyword_args(actor):
+  @interaction
+  def add_stuff(first, second, **kwargs):
+    return first + second + kwargs['a'] + kwargs['b'] + kwargs['c']
+
+  actor.knows(add_stuff)
+  result = actor.add_stuff(first=4, second=5, a=1, b=2, c=3)
+  assert result == 15
 
 
-def test_actor_calls_interaction_by_call_with_unnecessary_args_that_are_ignored(actor):
-  actor.knows(do_it)
-  response = actor.call_do_it(task="program", speed="lightning", garbage=True)
-  assert response == "program at lightning speed"
+def test_actor_calls_interaction_by_name_with_every_type_of_parameter(actor):
+  @interaction
+  def add_stuff(first, second, third=3, **kwargs):
+    return first + second + third + kwargs['a'] + kwargs['b'] + kwargs['c']
 
-
-def test_actor_calls_interaction_by_call_with_unnecessary_traits_that_are_ignored(actor):
-  actor.knows(do_it, garbage=True)
-  response = actor.call_do_it(task="program", speed="lightning")
-  assert response == "program at lightning speed"
+  actor.knows(add_stuff, first=1)
+  result = actor.add_stuff(second=2, a=4, b=5, c=6)
+  assert result == 21
 
 
 # ------------------------------------------------------------------------------
 # Tests for Calling Other Interaction Types with Sayings
 # ------------------------------------------------------------------------------
+
+def test_actor_calls_interaction_by_call(actor):
+  actor.knows(do_it)
+  response = actor.call_do_it(task="program", speed="lightning")
+  assert response == "program at lightning speed"
+
 
 @pytest.mark.parametrize(
   "callname",
@@ -279,3 +286,24 @@ def test_actor_calls_task_by_saying(actor, callname):
   actor.knows(whip_it_good)
   response = getattr(actor, callname)()
   assert response is None
+
+
+# ------------------------------------------------------------------------------
+# Tests for Unknown Sayings
+# ------------------------------------------------------------------------------
+
+@pytest.mark.parametrize(
+  "callname",
+  [
+    "noop",
+    "call_noop",
+    "check_add_things",
+    "get_whip_it_good",
+    "asks_for_whip_it_good",
+    "do_add_things",
+    "attempts_to_add_things"
+  ])
+def test_actor_calls_an_unknown_saying_by_prefix(actor, callname):
+  actor.knows(add_things, whip_it_good)
+  with pytest.raises(UnknownSayingError):
+    getattr(actor, callname)()
