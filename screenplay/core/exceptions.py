@@ -6,6 +6,13 @@ This module contains Actor exceptions.
 # Actor Exceptions
 # ------------------------------------------------------------------------------
 
+class DuplicateSayingError(Exception):
+  def __init__(self, saying, interaction):
+    super().__init__(f'The actor already has the saying "{saying}"')
+    self.saying = saying
+    self.interaction = interaction
+
+
 class MissingParametersError(Exception):
   def __init__(self, interaction, parameters):
     super().__init__(f'{interaction.__name__} is missing the following parameters: {", ".join(parameters)}')
