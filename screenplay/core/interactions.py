@@ -19,11 +19,11 @@ def _screenplay_decorator(
   func.is_condition = condition
   func.is_question = question
   func.is_task = task
-  func.sayings = [func.__name__, f'call_{func.__name__}']
+  func.phrases = [func.__name__, f'call_{func.__name__}']
 
   if extra_prefixes:
     for p in extra_prefixes:
-      func.sayings.append(f'{p}{func.__name__}')
+      func.phrases.append(f'{p}{func.__name__}')
 
   return func
 

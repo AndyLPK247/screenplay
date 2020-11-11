@@ -10,6 +10,7 @@ Interaction functions are in other modules.
 
 import functools
 import inspect
+import re
 
 from collections import OrderedDict
 from screenplay.core.exceptions import *
@@ -22,22 +23,26 @@ from screenplay.core.interactions import is_interaction, validate_interaction
 
 class Actor:
   def __init__(self, *args, **kwargs):
-    self._sayings = OrderedDict()
+    self._custom_phrases = list()
+    self._phrases = OrderedDict()
     self._traits = OrderedDict()
     self.knows(*args, **kwargs)
 
   def _add_actor_context(self, actor):
-    self._sayings.update(actor.sayings)
+    self._custom_phrases.extend(actor.custom_phrases)
+    self._phrases.update(actor.phrases)
     self._traits.update(actor.traits)
   
   def _add_interaction(self, interaction):
-    for saying in interaction.sayings:
-      if saying not in self._sayings:
+    self.custom_phrases.extend(interaction.custom_phrases)
+    
+    for phrase in interaction.phrases:
+      if phrase not in self._phrases:
         part = functools.partial(self.call, interaction)
         functools.update_wrapper(part, interaction)
-        self._sayings[saying] = part
+        self._phrases[phrase] = part
       else:
-        raise DuplicateSayingError(saying, interaction)
+        raise DuplicatePhraseError(phrase, interaction)
 
   def _add_module_members(self, module):
     members = inspect.getmembers(module)
@@ -74,8 +79,12 @@ class Actor:
     return full_context
 
   @property
-  def sayings(self):
-    return self._sayings
+  def custom_phrases(self):
+    return self._custom_phrases
+
+  @property
+  def phrases(self):
+    return self._phrases
 
   @property
   def traits(self):
@@ -100,7 +109,11 @@ class Actor:
         raise UnknowableArgumentError(arg)
 
   def __getattr__(self, attr):
-    if attr in self._sayings:
-      return self._sayings[attr]
-    else:
-      raise UnknownSayingError(attr)
+    if attr in self._phrases:
+      return self._phrases[attr]
+
+    for cp in self.custom_phrases:
+      if cp.matches(attr):
+        return cp.interaction
+
+    raise UnknownPhraseError(attr)

@@ -6,10 +6,10 @@ This module contains Actor exceptions.
 # Actor Exceptions
 # ------------------------------------------------------------------------------
 
-class DuplicateSayingError(Exception):
-  def __init__(self, saying, interaction):
-    super().__init__(f'The actor already has the saying "{saying}"')
-    self.saying = saying
+class DuplicatePhraseError(Exception):
+  def __init__(self, phrase, interaction):
+    super().__init__(f'The actor already has the phrase "{phrase}"')
+    self.phrase = phrase
     self.interaction = interaction
 
 
@@ -26,7 +26,7 @@ class UnknowableArgumentError(Exception):
     self.argument = argument
 
 
-class UnknownSayingError(Exception):
-  def __init__(self, saying_name):
-    super().__init__(f'The actor does not know "{saying_name}"')
-    self.saying_name = saying_name
+class UnknownPhraseError(Exception):
+  def __init__(self, phrase):
+    super().__init__(f'The actor does not know "{phrase}"')
+    self.phrase = phrase
