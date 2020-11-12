@@ -28,7 +28,7 @@ class WaitUntil(Task):
     answer = actor.asks_for(self.question)
     satisfied = self.condition.evaluate(answer)
 
-    while not satisfied and time.monotonic < end:
+    while not satisfied and time.monotonic() < end:
       time.sleep(self.interval)
       answer = actor.asks_for(self.question)
       satisfied = self.condition.evaluate(answer)
