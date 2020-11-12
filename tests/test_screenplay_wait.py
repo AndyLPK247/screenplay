@@ -53,7 +53,7 @@ class NextCount(Question):
 def test_waiting_with_no_need_to_wait(actor, mocker):
   mocker.patch('time.sleep')
   answer = actor.attempts_to(WaitUntil(NextCount(), IsGreaterThan(0), timeout=1))
-  time.sleep.assert_not_called()
+  time.sleep.assert_not_called()   # pylint: disable=no-member
 
   global COUNTER
   assert COUNTER == 1
@@ -63,7 +63,7 @@ def test_waiting_with_no_need_to_wait(actor, mocker):
 def test_waiting_successfully(actor, mocker):
   mocker.patch('time.sleep')
   answer = actor.attempts_to(WaitUntil(NextCount(), IsEqualTo(10), timeout=1))
-  time.sleep.assert_called_with(0)
+  time.sleep.assert_called_with(0)   # pylint: disable=no-member
 
   global COUNTER
   assert COUNTER == 10
@@ -73,7 +73,7 @@ def test_waiting_successfully(actor, mocker):
 def test_waiting_successfully_with_explicit_interval(actor, mocker):
   mocker.patch('time.sleep')
   answer = actor.attempts_to(WaitUntil(NextCount(), IsEqualTo(5), timeout=1, interval=0.01))
-  time.sleep.assert_called_with(0.01)
+  time.sleep.assert_called_with(0.01)   # pylint: disable=no-member
 
   global COUNTER
   assert COUNTER == 5
