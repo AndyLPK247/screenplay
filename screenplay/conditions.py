@@ -67,7 +67,7 @@ class IsGreaterThan(Condition):
     return actual > self.value
 
 
-class IsGreaterOrEqualTo(Condition):
+class IsGreaterThanOrEqualTo(Condition):
 
   def __init__(self, value):
     self.value = value
@@ -85,7 +85,7 @@ class IsLessThan(Condition):
     return actual < self.value
 
 
-class IsLessOrEqualTo(Condition):
+class IsLessThanOrEqualTo(Condition):
 
   def __init__(self, value):
     self.value = value
