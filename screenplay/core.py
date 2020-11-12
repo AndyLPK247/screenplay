@@ -10,26 +10,6 @@ from abc import ABC, abstractmethod
 
 
 # --------------------------------------------------------------------------------
-# Class: ScreenplayException
-# --------------------------------------------------------------------------------
-
-class ScreenplayException(Exception):
-  def __init__(self, message):
-    super().__init__(message)
-
-
-# --------------------------------------------------------------------------------
-# Class: MissingAbilityException
-# --------------------------------------------------------------------------------
-
-class MissingAbilityException(ScreenplayException):
-  def __init__(self, actor, ability):
-    super().__init__(f'The actor "{actor}" does not have an ability named "{ability}"')
-    self.actor = actor
-    self.ability = ability
-
-
-# --------------------------------------------------------------------------------
 # Class: Actor
 # --------------------------------------------------------------------------------
 
@@ -51,7 +31,7 @@ class Actor:
     return self._abilities[ability]
 
   def attempts_to(self, task):
-    task.perform_as(self)
+    return task.perform_as(self)
 
   def asks_for(self, question):
     return question.request_as(self)
@@ -61,30 +41,48 @@ class Actor:
 
 
 # --------------------------------------------------------------------------------
-# Class: Interaction
+# Abstract Class: Interaction
 # --------------------------------------------------------------------------------
 
-class Interaction:
+class Interaction(ABC):
   pass
 
 
 # --------------------------------------------------------------------------------
-# Class: Task
+# Abstract Class: Task
 # --------------------------------------------------------------------------------
 
 class Task(Interaction, ABC):
-  
   @abstractmethod
   def perform_as(self, actor):
     pass
 
 
 # --------------------------------------------------------------------------------
-# Class: Question
+# Abstract Class: Question
 # --------------------------------------------------------------------------------
 
 class Question(Interaction, ABC):
-  
   @abstractmethod
   def request_as(self, actor):
     pass
+
+
+# --------------------------------------------------------------------------------
+# Class: ScreenplayException
+# --------------------------------------------------------------------------------
+
+class ScreenplayException(Exception):
+  def __init__(self, message):
+    super().__init__(message)
+
+
+# --------------------------------------------------------------------------------
+# Class: MissingAbilityException
+# --------------------------------------------------------------------------------
+
+class MissingAbilityException(ScreenplayException):
+  def __init__(self, actor, ability):
+    super().__init__(f'The actor "{actor}" does not have an ability named "{ability}"')
+    self.actor = actor
+    self.ability = ability
