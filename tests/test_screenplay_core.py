@@ -80,7 +80,7 @@ def test_actor_using_a_missing_ability_raises_an_exception(actor):
 # Tests: Task
 # --------------------------------------------------------------------------------
 
-class add_an_ability(Task):
+class AddAnAbility(Task):
 
   def __init__(self, name):
     self.name = name
@@ -89,7 +89,7 @@ class add_an_ability(Task):
     actor.can_use(new_ability=self.name)
 
 
-class use_an_ability(Task):
+class UseAnAbility(Task):
 
   def perform_as(self, actor):
     value = actor.using('thing')
@@ -97,28 +97,28 @@ class use_an_ability(Task):
 
 
 def test_actor_attempts_a_task_with_an_argument(actor):
-  actor.attempts_to(add_an_ability('cool'))
+  actor.attempts_to(AddAnAbility('cool'))
   assert actor.has('new_ability')
   assert actor.using('new_ability') == 'cool'
 
 
 def test_actor_attempts_a_task_that_uses_an_ability(actor):
   actor.can_use(thing='cool')
-  actor.attempts_to(use_an_ability())
+  actor.attempts_to(UseAnAbility())
   assert actor.has('new_ability')
   assert actor.using('new_ability') == 'cool'
 
 
 def test_actor_attempts_a_task_but_lacks_the_ability(actor):
   with pytest.raises(MissingAbilityException):
-    actor.attempts_to(use_an_ability())
+    actor.attempts_to(UseAnAbility())
 
 
 # --------------------------------------------------------------------------------
 # Tests: Question
 # --------------------------------------------------------------------------------
 
-class adding_one(Question):
+class AddingOne(Question):
 
   def __init__(self, amount):
     self.amount = amount
@@ -127,23 +127,23 @@ class adding_one(Question):
     return self.amount + 1
 
 
-class adding_one_to_start(Question):
+class AddingOneToStart(Question):
 
   def request_as(self, actor):
     return actor.using('start') + 1
 
 
 def test_actor_asks_for_a_question_with_an_argument(actor):
-  answer = actor.asks_for(adding_one(5))
+  answer = actor.asks_for(AddingOne(5))
   assert answer == 6
 
 
 def test_actor_asks_for_a_question_that_uses_an_ability(actor):
   actor.can_use(start=9)
-  answer = actor.asks_for(adding_one_to_start())
+  answer = actor.asks_for(AddingOneToStart())
   assert answer == 10
 
 
 def test_actor_asks_for_a_question_but_lacks_the_ability(actor):
   with pytest.raises(MissingAbilityException):
-    actor.asks_for(adding_one_to_start())
+    actor.asks_for(AddingOneToStart())
