@@ -11,7 +11,7 @@ import time
 
 from screenplay.conditions import IsEqualTo, IsGreaterThan, IsLessThan
 from screenplay.core import Actor, Task, Question
-from screenplay.wait import WaitUntil, WaitingException
+from screenplay.waiting import WaitUntil, WaitingException
 
 
 # ------------------------------------------------------------------------------
