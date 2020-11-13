@@ -6,7 +6,16 @@ Contains the core definitions for the Screenplay Pattern.
 # Imports
 # --------------------------------------------------------------------------------
 
+import logging
+
 from abc import ABC, abstractmethod
+
+
+# --------------------------------------------------------------------------------
+# Logging
+# --------------------------------------------------------------------------------
+
+logger = logging.getLogger(__name__)
 
 
 # --------------------------------------------------------------------------------
@@ -21,6 +30,7 @@ class Actor:
 
   def can_use(self, **kwargs):
     self._abilities.update(kwargs)
+    logger.debug(f'{self} can use: {kwargs}')
 
   def has(self, ability):
     return ability in self._abilities
@@ -28,13 +38,21 @@ class Actor:
   def using(self, ability):
     if not self.has(ability):
       raise MissingAbilityException(self, ability)
-    return self._abilities[ability]
+    value = self._abilities[ability]
+    logger.debug(f'{self} is using "{ability}" as "{value}"')
+    return value
 
   def attempts_to(self, task):
-    return task.perform_as(self)
+    logger.info(f'{self} attempts to {task}')
+    answer = task.perform_as(self)
+    logger.info(f'{self} did {task}')
+    return answer
 
   def asks_for(self, question):
-    return question.request_as(self)
+    logger.info(f'{self} asks for {question}')
+    answer = question.request_as(self)
+    logger.info(f'{self} asking for {question} got {answer}')
+    return answer
 
   def __str__(self):
     return self._name
