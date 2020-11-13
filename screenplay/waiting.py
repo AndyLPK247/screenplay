@@ -38,6 +38,9 @@ class WaitUntil(Task):
 
     return answer
 
+  def __str__(self):
+    return f'wait until {self.question} {self.condition} for {self.timeout}s'
+
 
 # --------------------------------------------------------------------------------
 # Class: WaitingException
