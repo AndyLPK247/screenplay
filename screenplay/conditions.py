@@ -21,75 +21,58 @@ class Condition(ABC):
 
 
 # --------------------------------------------------------------------------------
-# Conditions for Equality
+# Abstract Class: ValueCondition
 # --------------------------------------------------------------------------------
 
-class IsEqualTo(Condition):
-
+class ValueCondition(ABC):
   def __init__(self, value):
     self.value = value
 
+
+# --------------------------------------------------------------------------------
+# Conditions for Equality
+# --------------------------------------------------------------------------------
+
+class IsEqualTo(ValueCondition):
   def evaluate(self, actual):
     return actual == self.value
 
 
-class IsNotEqualTo(IsEqualTo):
-
-  def __init__(self, value):
-    super().__init__(value)
-  
+class IsNotEqualTo(ValueCondition):
   def evaluate(self, actual):
-    return not super().evaluate(actual)
+    return actual != self.value
 
 
-class IsTrue(IsEqualTo):
+class IsTrue(Condition):
+  def evaluate(self, actual):
+    return actual
 
-  def __init__(self):
-    super().__init__(True)
 
-
-class IsFalse(IsEqualTo):
-
-  def __init__(self):
-    super().__init__(False)
+class IsFalse(Condition):
+  def evaluate(self, actual):
+    return not actual
 
 
 # --------------------------------------------------------------------------------
 # Conditions for Numerical Comparisons
 # --------------------------------------------------------------------------------
 
-class IsGreaterThan(Condition):
-
-  def __init__(self, value):
-    self.value = value
-
+class IsGreaterThan(ValueCondition):
   def evaluate(self, actual):
     return actual > self.value
 
 
-class IsGreaterThanOrEqualTo(Condition):
-
-  def __init__(self, value):
-    self.value = value
-
+class IsGreaterThanOrEqualTo(ValueCondition):
   def evaluate(self, actual):
     return actual >= self.value
 
 
-class IsLessThan(Condition):
-
-  def __init__(self, value):
-    self.value = value
-
+class IsLessThan(ValueCondition):
   def evaluate(self, actual):
     return actual < self.value
 
 
-class IsLessThanOrEqualTo(Condition):
-
-  def __init__(self, value):
-    self.value = value
-
+class IsLessThanOrEqualTo(ValueCondition):
   def evaluate(self, actual):
     return actual <= self.value
 
@@ -98,19 +81,11 @@ class IsLessThanOrEqualTo(Condition):
 # Conditions for Containment
 # --------------------------------------------------------------------------------
 
-class Contains(Condition):
-
-  def __init__(self, value):
-    self.value = value
-
+class Contains(ValueCondition):
   def evaluate(self, actual):
     return self.value in actual
 
 
-class DoesNotContain(Contains):
-
-  def __init__(self, value):
-    super().__init__(value)
-  
+class DoesNotContain(ValueCondition):
   def evaluate(self, actual):
-    return not super().evaluate(actual)
+    return self.value not in actual
