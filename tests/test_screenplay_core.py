@@ -31,9 +31,9 @@ def test_actor_init_default(actor):
 
 def test_actor_init_with_name():
   andy = Actor('Andy')
-  assert len(andy._abilities) == 0
-  assert andy._name == 'Andy'
+  assert andy.name == 'Andy'
   assert str(andy) == 'Andy'
+  assert len(andy._abilities) == 0
 
 
 def test_actor_has_an_ability(actor):

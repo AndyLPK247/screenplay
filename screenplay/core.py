@@ -25,8 +25,8 @@ logger = logging.getLogger(__name__)
 class Actor:
 
   def __init__(self, name='Actor'):
+    self.name = name
     self._abilities = dict()
-    self._name = name
 
   def can_use(self, **kwargs):
     self._abilities.update(kwargs)
@@ -55,7 +55,7 @@ class Actor:
     return answer
 
   def __str__(self):
-    return self._name
+    return self.name
 
 
 # --------------------------------------------------------------------------------
