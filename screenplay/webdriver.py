@@ -7,7 +7,9 @@ Contains interactions for Selenium WebDriver.
 # --------------------------------------------------------------------------------
 
 from abc import ABC
+from screenplay.conditions import IsTrue
 from screenplay.core import Question, Task
+from screenplay.waiting import WaitUntil
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 
 
@@ -38,7 +40,7 @@ class LocatorInteraction(ABC):
   def __init__(self, locator):
     self.locator = locator
   
-  def q(self):
+  def loc(self):
     return (self.locator.qtype, self.locator.query)
 
 
@@ -51,7 +53,7 @@ class AppearanceOf(Question, LocatorInteraction):
   def request_as(self, actor):
     try:
       driver = actor.using('webdriver')
-      appeared = driver.find_element(*self.q()).is_displayed()
+      appeared = driver.find_element(*self.loc()).is_displayed()
     except (NoSuchElementException, StaleElementReferenceException):
       # if the element isn't found, then it doesn't exist
       appeared = False
@@ -62,6 +64,21 @@ class AppearanceOf(Question, LocatorInteraction):
 
 
 # --------------------------------------------------------------------------------
+# Task: Clear
+# --------------------------------------------------------------------------------
+
+class Clear(Task, LocatorInteraction):
+
+  def perform_as(self, actor):
+    actor.attempts_to(WaitUntil(AppearanceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    driver.find_element(*self.loc()).clear()
+    
+  def __str__(self):
+    return f'clear {self.locator}'
+
+
+# --------------------------------------------------------------------------------
 # Question: ExistenceOf
 # --------------------------------------------------------------------------------
 
@@ -69,7 +86,7 @@ class ExistenceOf(Question, LocatorInteraction):
 
   def request_as(self, actor):
     driver = actor.using('webdriver')
-    elements = driver.find_elements(*self.q())
+    elements = driver.find_elements(*self.loc())
     return len(elements) > 0
 
   def __str__(self):
@@ -89,7 +106,7 @@ class NavigateToUrl(Task):
     actor.using('webdriver').get(self.url)
     
   def __str__(self):
-    return f'naviage to {self.url}'
+    return f'navigate to {self.url}'
 
 
 # --------------------------------------------------------------------------------
