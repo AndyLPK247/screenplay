@@ -36,21 +36,29 @@ class ValueCondition(ABC):
 class IsEqualTo(ValueCondition):
   def evaluate(self, actual):
     return actual == self.value
+  def __str__(self):
+    return f'is equal to {self.value}'
 
 
 class IsNotEqualTo(ValueCondition):
   def evaluate(self, actual):
     return actual != self.value
+  def __str__(self):
+    return f'is not equal to {self.value}'
 
 
 class IsTrue(Condition):
   def evaluate(self, actual):
     return actual
+  def __str__(self):
+    return 'is True'
 
 
 class IsFalse(Condition):
   def evaluate(self, actual):
     return not actual
+  def __str__(self):
+    return 'is False'
 
 
 # --------------------------------------------------------------------------------
@@ -60,21 +68,29 @@ class IsFalse(Condition):
 class IsGreaterThan(ValueCondition):
   def evaluate(self, actual):
     return actual > self.value
+  def __str__(self):
+    return f'is greater than {self.value}'
 
 
 class IsGreaterThanOrEqualTo(ValueCondition):
   def evaluate(self, actual):
     return actual >= self.value
+  def __str__(self):
+    return f'is greater than or equal to {self.value}'
 
 
 class IsLessThan(ValueCondition):
   def evaluate(self, actual):
     return actual < self.value
+  def __str__(self):
+    return f'is less than {self.value}'
 
 
 class IsLessThanOrEqualTo(ValueCondition):
   def evaluate(self, actual):
     return actual <= self.value
+  def __str__(self):
+    return f'is less than or equal to {self.value}'
 
 
 # --------------------------------------------------------------------------------
@@ -84,8 +100,12 @@ class IsLessThanOrEqualTo(ValueCondition):
 class Contains(ValueCondition):
   def evaluate(self, actual):
     return self.value in actual
+  def __str__(self):
+    return f'contains {self.value}'
 
 
 class DoesNotContain(ValueCondition):
   def evaluate(self, actual):
     return self.value not in actual
+  def __str__(self):
+    return f'does not contain {self.value}'
