@@ -11,6 +11,8 @@ from screenplay.conditions import IsTrue
 from screenplay.core import Question, Task
 from screenplay.waiting import WaitUntil
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 
 
 # --------------------------------------------------------------------------------
@@ -79,6 +81,22 @@ class Clear(Task, LocatorInteraction):
 
 
 # --------------------------------------------------------------------------------
+# Task: Click
+# --------------------------------------------------------------------------------
+
+class Click(Task, LocatorInteraction):
+
+  def perform_as(self, actor):
+    actor.attempts_to(WaitUntil(AppearanceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    element = driver.find_element(*self.loc())
+    ActionChains(driver).move_to_element(element).click().perform()
+    
+  def __str__(self):
+    return f'click {self.locator}'
+
+
+# --------------------------------------------------------------------------------
 # Question: ExistenceOf
 # --------------------------------------------------------------------------------
 
@@ -107,6 +125,33 @@ class NavigateToUrl(Task):
     
   def __str__(self):
     return f'navigate to {self.url}'
+
+
+# --------------------------------------------------------------------------------
+# Task: SendKeysTo
+# --------------------------------------------------------------------------------
+
+class SendKeysTo(Task, LocatorInteraction):
+
+  def __init__(self, locator, keys, clear=True, enter=False):
+    super().__init__(locator)
+    self.keys = keys
+    self.clear = clear
+    self.enter = enter
+
+  def _get_keys(self):
+    return self.keys + Keys.ENTER if self.enter else self.keys
+
+  def perform_as(self, actor):
+    actor.attempts_to(WaitUntil(AppearanceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    element = driver.find_element(*self.loc())
+    if self.clear:
+      element.clear()
+    element.send_keys(self._get_keys())
+    
+  def __str__(self):
+    return f'send keys "{self.keys}" to {self.locator}'
 
 
 # --------------------------------------------------------------------------------
