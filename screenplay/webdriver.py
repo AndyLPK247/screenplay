@@ -97,6 +97,34 @@ class Click(Task, LocatorInteraction):
 
 
 # --------------------------------------------------------------------------------
+# Question: CountOf
+# --------------------------------------------------------------------------------
+
+class CountOf(Question, LocatorInteraction):
+
+  def request_as(self, actor):
+    driver = actor.using('webdriver')
+    elements = driver.find_elements(*self.loc())
+    return len(elements)
+
+  def __str__(self):
+    return f'count of {self.locator}'
+
+
+# --------------------------------------------------------------------------------
+# Question: CurrentUrl
+# --------------------------------------------------------------------------------
+
+class CurrentUrl(Question):
+
+  def request_as(self, actor):
+    return actor.using('webdriver').current_url
+
+  def __str__(self):
+    return f'current URL'
+
+
+# --------------------------------------------------------------------------------
 # Question: ExistenceOf
 # --------------------------------------------------------------------------------
 
@@ -109,6 +137,48 @@ class ExistenceOf(Question, LocatorInteraction):
 
   def __str__(self):
     return f'existence of {self.locator}'
+
+
+# --------------------------------------------------------------------------------
+# Task: HoverOver
+# --------------------------------------------------------------------------------
+
+class HoverOver(Task, LocatorInteraction):
+
+  def perform_as(self, actor):
+    actor.attempts_to(WaitUntil(AppearanceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    element = driver.find_element(*self.loc())
+    ActionChains(driver).move_to_element(element).perform()
+    
+  def __str__(self):
+    return f'hover over {self.locator}'
+
+
+# --------------------------------------------------------------------------------
+# Task: MaximizeWindow
+# --------------------------------------------------------------------------------
+
+class MaximizeWindow(Task):
+
+  def perform_as(self, actor):
+    actor.using('webdriver').maximize_window()
+    
+  def __str__(self):
+    return f'maximize the browser window'
+
+
+# --------------------------------------------------------------------------------
+# Task: MinimizeWindow
+# --------------------------------------------------------------------------------
+
+class MinimizeWindow(Task):
+
+  def perform_as(self, actor):
+    actor.using('webdriver').minimize_window()
+    
+  def __str__(self):
+    return f'minimize the browser window'
 
 
 # --------------------------------------------------------------------------------
@@ -125,6 +195,32 @@ class NavigateToUrl(Task):
     
   def __str__(self):
     return f'navigate to {self.url}'
+
+
+# --------------------------------------------------------------------------------
+# Task: QuitBrowser
+# --------------------------------------------------------------------------------
+
+class QuitBrowser(Task):
+
+  def perform_as(self, actor):
+    actor.using('webdriver').quit()
+    
+  def __str__(self):
+    return f'quit the browser'
+
+
+# --------------------------------------------------------------------------------
+# Task: RefreshBrowser
+# --------------------------------------------------------------------------------
+
+class RefreshBrowser(Task):
+
+  def perform_as(self, actor):
+    actor.using('webdriver').refresh()
+    
+  def __str__(self):
+    return f'refresh the browser'
 
 
 # --------------------------------------------------------------------------------
@@ -155,13 +251,41 @@ class SendKeysTo(Task, LocatorInteraction):
 
 
 # --------------------------------------------------------------------------------
-# Task: QuitBrowser
+# Task: Submit
 # --------------------------------------------------------------------------------
 
-class QuitBrowser(Task):
+class Submit(Task, LocatorInteraction):
 
   def perform_as(self, actor):
-    actor.using('webdriver').quit()
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    driver.find_element(*self.loc()).submit()
     
   def __str__(self):
-    return f'quit the browser'
+    return f'submit {self.locator}'
+
+
+# --------------------------------------------------------------------------------
+# Question: Title
+# --------------------------------------------------------------------------------
+
+class Title(Question):
+
+  def request_as(self, actor):
+    return actor.using('webdriver').title
+
+  def __str__(self):
+    return f'title'
+
+
+# --------------------------------------------------------------------------------
+# Question: WindowHandles
+# --------------------------------------------------------------------------------
+
+class WindowHandles(Question):
+
+  def request_as(self, actor):
+    return actor.using('webdriver').window_handles
+
+  def __str__(self):
+    return f'window handles'
