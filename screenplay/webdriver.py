@@ -279,6 +279,37 @@ class Title(Question):
 
 
 # --------------------------------------------------------------------------------
+# Question: TextListOf
+# --------------------------------------------------------------------------------
+
+class TextListOf(Question, LocatorInteraction):
+
+  def request_as(self, actor):
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    elements = driver.find_elements(*self.loc())
+    return [x.text for x in elements]
+
+  def __str__(self):
+    return f'text of {self.locator}'
+
+
+# --------------------------------------------------------------------------------
+# Question: TextOf
+# --------------------------------------------------------------------------------
+
+class TextOf(Question, LocatorInteraction):
+
+  def request_as(self, actor):
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    return driver.find_element(*self.loc()).text
+
+  def __str__(self):
+    return f'text of {self.locator}'
+
+
+# --------------------------------------------------------------------------------
 # Question: WindowHandles
 # --------------------------------------------------------------------------------
 
