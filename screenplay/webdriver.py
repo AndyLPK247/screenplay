@@ -345,6 +345,48 @@ class RefreshBrowser(Task):
 
 
 # --------------------------------------------------------------------------------
+# Task: SaveScreenshotTo
+# --------------------------------------------------------------------------------
+
+class SaveScreenshotTo(Task):
+
+  def __init__(self, png_path):
+    self.png_path = png_path
+
+  def perform_as(self, actor):
+    actor.using('webdriver').save_screenshot(self.png_path)
+
+  def __str__(self):
+    return f'save screenshot to {self.png_path}'
+
+
+# --------------------------------------------------------------------------------
+# Question: ScreenshotAsBase64
+# --------------------------------------------------------------------------------
+
+class ScreenshotAsBase64(Question):
+
+  def request_as(self, actor):
+    return actor.using('webdriver').get_screenshot_as_base64()
+
+  def __str__(self):
+    return f'screenshot as a base64 encoded string'
+
+
+# --------------------------------------------------------------------------------
+# Question: ScreenshotAsPng
+# --------------------------------------------------------------------------------
+
+class ScreenshotAsPng(Question):
+
+  def request_as(self, actor):
+    return actor.using('webdriver').get_screenshot_as_png()
+
+  def __str__(self):
+    return f'screenshot as PNG binary data'
+
+
+# --------------------------------------------------------------------------------
 # Question: SelectedStateOf
 # --------------------------------------------------------------------------------
 
