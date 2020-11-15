@@ -112,6 +112,44 @@ class CountOf(Question, LocatorInteraction):
 
 
 # --------------------------------------------------------------------------------
+# Question: CssClassesOf
+# --------------------------------------------------------------------------------
+
+class CssClassesOf(Question, LocatorInteraction):
+
+  def __init__(self, locator):
+    super().__init__(locator)
+
+  def request_as(self, actor):
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    classes = driver.find_element(*self.loc()).get_attribute('class')
+    return classes.split()
+
+  def __str__(self):
+    return f'CSS classes of {self.locator}'
+
+
+# --------------------------------------------------------------------------------
+# Question: CssPropertyValueOf
+# --------------------------------------------------------------------------------
+
+class CssPropertyValueOf(Question, LocatorInteraction):
+
+  def __init__(self, locator, prop_name):
+    super().__init__(locator)
+    self.prop_name = prop_name
+
+  def request_as(self, actor):
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    return driver.find_element(*self.loc()).value_of_css_property(self.prop_name)
+
+  def __str__(self):
+    return f'CSS property value "{self.prop_name}" of {self.locator}'
+
+
+# --------------------------------------------------------------------------------
 # Question: CurrentUrl
 # --------------------------------------------------------------------------------
 
@@ -262,6 +300,25 @@ class PixelSizeOf(Question, LocatorInteraction):
 
 
 # --------------------------------------------------------------------------------
+# Question: PropertyOf
+# --------------------------------------------------------------------------------
+
+class PropertyOf(Question, LocatorInteraction):
+
+  def __init__(self, locator, prop_name):
+    super().__init__(locator)
+    self.prop_name = prop_name
+
+  def request_as(self, actor):
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    return driver.find_element(*self.loc()).get_property(self.prop_name)
+
+  def __str__(self):
+    return f'Property "{self.prop_name}" of {self.locator}'
+
+
+# --------------------------------------------------------------------------------
 # Task: QuitBrowser
 # --------------------------------------------------------------------------------
 
@@ -401,6 +458,15 @@ class TextOf(Question, LocatorInteraction):
 
   def __str__(self):
     return f'text of {self.locator}'
+
+
+# --------------------------------------------------------------------------------
+# Question: ValueAttributeOf
+# --------------------------------------------------------------------------------
+
+class ValueAttributeOf(HtmlAttributeOf):
+  def __init__(self, locator):
+    super().__init__(locator, 'value')
 
 
 # --------------------------------------------------------------------------------
