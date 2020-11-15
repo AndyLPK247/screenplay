@@ -125,6 +125,21 @@ class CurrentUrl(Question):
 
 
 # --------------------------------------------------------------------------------
+# Question: EnabledStateOf
+# --------------------------------------------------------------------------------
+
+class EnabledStateOf(Question, LocatorInteraction):
+
+  def request_as(self, actor):
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    return driver.find_element(*self.loc()).is_enabled()
+
+  def __str__(self):
+    return f'enabled state of {self.locator}'
+
+
+# --------------------------------------------------------------------------------
 # Question: ExistenceOf
 # --------------------------------------------------------------------------------
 
@@ -153,6 +168,40 @@ class HoverOver(Task, LocatorInteraction):
     
   def __str__(self):
     return f'hover over {self.locator}'
+
+
+# --------------------------------------------------------------------------------
+# Question: HtmlAttributeOf
+# --------------------------------------------------------------------------------
+
+class HtmlAttributeOf(Question, LocatorInteraction):
+
+  def __init__(self, locator, attribute):
+    super().__init__(locator)
+    self.attribute = attribute
+
+  def request_as(self, actor):
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    return driver.find_element(*self.loc()).get_attribute(self.attribute)
+
+  def __str__(self):
+    return f'HTML attribute "{self.attribute}" of {self.locator}'
+
+
+# --------------------------------------------------------------------------------
+# Question: LocationOf
+# --------------------------------------------------------------------------------
+
+class LocationOf(Question, LocatorInteraction):
+
+  def request_as(self, actor):
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    return driver.find_element(*self.loc()).location
+
+  def __str__(self):
+    return f'location of {self.locator}'
 
 
 # --------------------------------------------------------------------------------
@@ -198,6 +247,21 @@ class NavigateToUrl(Task):
 
 
 # --------------------------------------------------------------------------------
+# Question: PixelSizeOf
+# --------------------------------------------------------------------------------
+
+class PixelSizeOf(Question, LocatorInteraction):
+
+  def request_as(self, actor):
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    return driver.find_element(*self.loc()).size
+
+  def __str__(self):
+    return f'pixel size of {self.locator}'
+
+
+# --------------------------------------------------------------------------------
 # Task: QuitBrowser
 # --------------------------------------------------------------------------------
 
@@ -221,6 +285,21 @@ class RefreshBrowser(Task):
     
   def __str__(self):
     return f'refresh the browser'
+
+
+# --------------------------------------------------------------------------------
+# Question: SelectedStateOf
+# --------------------------------------------------------------------------------
+
+class SelectedStateOf(Question, LocatorInteraction):
+
+  def request_as(self, actor):
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    return driver.find_element(*self.loc()).is_selected()
+
+  def __str__(self):
+    return f'selected state of {self.locator}'
 
 
 # --------------------------------------------------------------------------------
@@ -263,6 +342,21 @@ class Submit(Task, LocatorInteraction):
     
   def __str__(self):
     return f'submit {self.locator}'
+
+
+# --------------------------------------------------------------------------------
+# Question: TagNameOf
+# --------------------------------------------------------------------------------
+
+class TagNameOf(Question, LocatorInteraction):
+
+  def request_as(self, actor):
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    return driver.find_element(*self.loc()).tag_name
+
+  def __str__(self):
+    return f'tag name of {self.locator}'
 
 
 # --------------------------------------------------------------------------------
