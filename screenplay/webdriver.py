@@ -228,6 +228,24 @@ class HtmlAttributeOf(Question, LocatorInteraction):
 
 
 # --------------------------------------------------------------------------------
+# Question: JavaScriptInBrowser
+# --------------------------------------------------------------------------------
+
+class JavaScriptInBrowser(Question):
+
+  def __init__(self, script, *args):
+    self.script = script
+    self.args = args
+
+  def request_as(self, actor):
+    driver = actor.using('webdriver')
+    return driver.execute_script(self.script, *self.args)
+
+  def __str__(self):
+    return f'JavaScript "{self.script}" with {self.args}'
+
+
+# --------------------------------------------------------------------------------
 # Question: LocationOf
 # --------------------------------------------------------------------------------
 
