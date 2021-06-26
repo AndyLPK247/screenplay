@@ -51,7 +51,19 @@ class Actor:
   def asks_for(self, question):
     logger.info(f'{self} asks for {question}')
     answer = question.request_as(self)
-    logger.info(f'{self} asking for {question} got {answer}')
+    logger.info(f'{self} asked for {question} and got {answer}')
+    return answer
+
+  def calls(self, interaction):
+    logger.info(f'{self} calls {interaction}')
+    if isinstance(interaction, Task):
+      answer = interaction.perform_as(self)
+    elif isinstance(interaction, Question):
+      answer = interaction.request_as(self)
+    if answer is None:
+      logger.info(f'{self} called {interaction}')
+    else:
+      logger.info(f'{self} called {interaction} and got {answer}')
     return answer
 
   def __str__(self):

@@ -114,6 +114,24 @@ def test_actor_attempts_a_task_but_lacks_the_ability(actor):
     actor.attempts_to(UseAnAbility())
 
 
+def test_actor_calls_a_task_with_an_argument(actor):
+  actor.calls(AddAnAbility('cool'))
+  assert actor.has('new_ability')
+  assert actor.using('new_ability') == 'cool'
+
+
+def test_actor_calls_a_task_that_uses_an_ability(actor):
+  actor.can_use(thing='cool')
+  actor.calls(UseAnAbility())
+  assert actor.has('new_ability')
+  assert actor.using('new_ability') == 'cool'
+
+
+def test_actor_calls_a_task_but_lacks_the_ability(actor):
+  with pytest.raises(MissingAbilityException):
+    actor.calls(UseAnAbility())
+
+
 # --------------------------------------------------------------------------------
 # Tests: Question
 # --------------------------------------------------------------------------------
@@ -147,3 +165,19 @@ def test_actor_asks_for_a_question_that_uses_an_ability(actor):
 def test_actor_asks_for_a_question_but_lacks_the_ability(actor):
   with pytest.raises(MissingAbilityException):
     actor.asks_for(AddingOneToStart())
+
+
+def test_actor_calls_a_question_with_an_argument(actor):
+  answer = actor.calls(AddingOne(5))
+  assert answer == 6
+
+
+def test_actor_calls_a_question_that_uses_an_ability(actor):
+  actor.can_use(start=9)
+  answer = actor.calls(AddingOneToStart())
+  assert answer == 10
+
+
+def test_actor_calls_a_question_but_lacks_the_ability(actor):
+  with pytest.raises(MissingAbilityException):
+    actor.calls(AddingOneToStart())

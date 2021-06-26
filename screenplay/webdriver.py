@@ -13,6 +13,7 @@ from screenplay.waiting import WaitUntil
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
 
 
 # --------------------------------------------------------------------------------
@@ -44,6 +45,19 @@ class LocatorInteraction(ABC):
   
   def loc(self):
     return (self.locator.qtype, self.locator.query)
+
+
+# --------------------------------------------------------------------------------
+# Abstract Class: SelectInteraction
+# --------------------------------------------------------------------------------
+
+class SelectInteraction(LocatorInteraction, ABC):
+
+  def get_select(self, actor):
+    actor.attempts_to(WaitUntil(ExistenceOf(self.locator), IsTrue()))
+    driver = actor.using('webdriver')
+    select = Select(driver.find_element(*self.loc()))
+    return select
 
 
 # --------------------------------------------------------------------------------
@@ -228,6 +242,24 @@ class HtmlAttributeOf(Question, LocatorInteraction):
 
 
 # --------------------------------------------------------------------------------
+# Question: JavaScriptInBrowser
+# --------------------------------------------------------------------------------
+
+class JavaScriptInBrowser(Question):
+
+  def __init__(self, script, *args):
+    self.script = script
+    self.args = args
+
+  def request_as(self, actor):
+    driver = actor.using('webdriver')
+    return driver.execute_script(self.script, *self.args)
+
+  def __str__(self):
+    return f'JavaScript "{self.script}" with {self.args}'
+
+
+# --------------------------------------------------------------------------------
 # Question: LocationOf
 # --------------------------------------------------------------------------------
 
@@ -384,6 +416,86 @@ class ScreenshotAsPng(Question):
 
   def __str__(self):
     return f'screenshot as PNG binary data'
+
+
+# --------------------------------------------------------------------------------
+# Task: SelectByIndex
+# --------------------------------------------------------------------------------
+
+class SelectByIndex(Task, SelectInteraction):
+
+  def __init__(self, locator, index):
+    super().__init__(locator)
+    self.index = index
+
+  def perform_as(self, actor):
+    select = self.get_select(actor)
+    select.select_by_index(self.index)
+    
+  def __str__(self):
+    return f'select {self.locator} by index "{self.index}"'
+
+
+# --------------------------------------------------------------------------------
+# Task: SelectByText
+# --------------------------------------------------------------------------------
+
+class SelectByText(Task, SelectInteraction):
+
+  def __init__(self, locator, text):
+    super().__init__(locator)
+    self.text = text
+
+  def perform_as(self, actor):
+    select = self.get_select(actor)
+    select.select_by_visible_text(self.text)
+    
+  def __str__(self):
+    return f'select {self.locator} by text "{self.text}"'
+
+
+# --------------------------------------------------------------------------------
+# Task: SelectByValue
+# --------------------------------------------------------------------------------
+
+class SelectByValue(Task, SelectInteraction):
+
+  def __init__(self, locator, value):
+    super().__init__(locator)
+    self.value = value
+
+  def perform_as(self, actor):
+    select = self.get_select(actor)
+    select.select_by_value(self.value)
+    
+  def __str__(self):
+    return f'select {self.locator} by value "{self.value}"'
+
+
+# --------------------------------------------------------------------------------
+# Task: SelectOptionsTextList
+# --------------------------------------------------------------------------------
+
+class SelectOptionsTextList(Question, SelectInteraction):
+
+  def request_as(self, actor):
+    return [o.text for o in self.get_select(actor).options]
+    
+  def __str__(self):
+    return 'select options'
+
+
+# --------------------------------------------------------------------------------
+# Task: SelectedOptionsTextList
+# --------------------------------------------------------------------------------
+
+class SelectedOptionsTextList(Question, SelectInteraction):
+
+  def request_as(self, actor):
+    return [o.text for o in self.get_select(actor).all_selected_options]
+    
+  def __str__(self):
+    return 'selected options'
 
 
 # --------------------------------------------------------------------------------
