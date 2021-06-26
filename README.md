@@ -7,7 +7,7 @@ A Pythonic Screenplay Pattern
 
 * scrolling
 * switching windows
-* select elements
-* JavaScript calls
 * alerts
 * cookies
+
++ stale element retries!
